@@ -37,8 +37,64 @@ public class UnderwriterSubscriptionResponse {
     // Premium and status
     private Double premiumAmount;
     private String status;
+    private String rejectionReason;
+
+    // Objective Security & Safety fields
+    private Boolean hasProfessionalSecurity;
+    private Boolean hasCCTV;
+    private Boolean hasMetalDetectors;
+    private Boolean hasFireNOC;
+    private Boolean hasOnSiteFireSafety;
 
     public UnderwriterSubscriptionResponse() {
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
+    }
+
+    public Boolean getHasProfessionalSecurity() {
+        return hasProfessionalSecurity;
+    }
+
+    public void setHasProfessionalSecurity(Boolean hasProfessionalSecurity) {
+        this.hasProfessionalSecurity = hasProfessionalSecurity;
+    }
+
+    public Boolean getHasCCTV() {
+        return hasCCTV;
+    }
+
+    public void setHasCCTV(Boolean hasCCTV) {
+        this.hasCCTV = hasCCTV;
+    }
+
+    public Boolean getHasMetalDetectors() {
+        return hasMetalDetectors;
+    }
+
+    public void setHasMetalDetectors(Boolean hasMetalDetectors) {
+        this.hasMetalDetectors = hasMetalDetectors;
+    }
+
+    public Boolean getHasFireNOC() {
+        return hasFireNOC;
+    }
+
+    public void setHasFireNOC(Boolean hasFireNOC) {
+        this.hasFireNOC = hasFireNOC;
+    }
+
+    public Boolean getHasOnSiteFireSafety() {
+        return hasOnSiteFireSafety;
+    }
+
+    public void setHasOnSiteFireSafety(Boolean hasOnSiteFireSafety) {
+        this.hasOnSiteFireSafety = hasOnSiteFireSafety;
     }
 
     public Long getSubscriptionId() {

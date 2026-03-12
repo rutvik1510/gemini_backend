@@ -44,13 +44,22 @@ public class JwtUtil {
 
     // Extract Username
     public String extractUsername(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims != null ? claims.getSubject() : null;
+    }
 
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+    private Claims extractAllClaims(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            return e.getClaims();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     // Extract Role from Token

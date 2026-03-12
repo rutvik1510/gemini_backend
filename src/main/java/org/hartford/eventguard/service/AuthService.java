@@ -1,7 +1,6 @@
 package org.hartford.eventguard.service;
 
 import org.hartford.eventguard.dto.RegisterRequest;
-import org.hartford.eventguard.dto.UserResponse;
 import org.hartford.eventguard.entity.Role;
 import org.hartford.eventguard.entity.User;
 import org.hartford.eventguard.exception.InvalidRequestException;
@@ -48,11 +47,13 @@ public class AuthService {
             throw new InvalidRequestException("Password must be at least 6 characters long");
         }
 
-        // Create user
         User user = new User();
         user.setFullName(request.getName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPhone(request.getPhone());
+        user.setCompanyName(request.getCompanyName());
+        user.setActive(true);
 
         // Assign CUSTOMER role
         Role customerRole = roleRepository.findByRoleName("CUSTOMER")
@@ -68,28 +69,5 @@ public class AuthService {
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
-    }
-
-    // Admin method to get all users
-    public List<UserResponse> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        return users.stream()
-                .map(this::convertToUserResponse)
-                .collect(Collectors.toList());
-    }
-
-    private UserResponse convertToUserResponse(User user) {
-        UserResponse response = new UserResponse();
-        response.setUserId(user.getUserId());
-        response.setFullName(user.getFullName());
-        response.setEmail(user.getEmail());
-        response.setIsActive(user.isActive());
-
-        // Get primary role name
-        String roleName = user.getRoles().isEmpty() ? "UNKNOWN" :
-                         user.getRoles().iterator().next().getRoleName();
-        response.setRole(roleName);
-
-        return response;
     }
 }

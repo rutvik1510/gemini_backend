@@ -19,6 +19,7 @@ public class CustomerSubscriptionResponse {
     private Double riskPercentage;
     private Double premiumAmount;
     private Boolean isPaid;
+    private Boolean hasClaim;
     private String status;
     private LocalDateTime requestedAt;
 
@@ -95,6 +96,14 @@ public class CustomerSubscriptionResponse {
 
     public void setPaid(Boolean paid) {
         isPaid = paid;
+    }
+
+    public Boolean getHasClaim() {
+        return hasClaim != null && hasClaim;
+    }
+
+    public void setHasClaim(Boolean hasClaim) {
+        this.hasClaim = hasClaim;
     }
 
     public String getStatus() {

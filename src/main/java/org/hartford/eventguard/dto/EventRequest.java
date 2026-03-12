@@ -16,8 +16,13 @@ public class EventRequest {
     private Integer numberOfAttendees;
     private Integer durationInDays;
     private VenueType venueType;
-    private String locationRiskLevel;
-    private String securityLevel;
+
+    // Objective Security & Safety fields
+    private Boolean hasProfessionalSecurity;
+    private Boolean hasCCTV;
+    private Boolean hasMetalDetectors;
+    private Boolean hasFireNOC;
+    private Boolean hasOnSiteFireSafety;
 
     // Music concert specific fields
     private Boolean isOutdoor;
@@ -170,19 +175,43 @@ public class EventRequest {
         this.emergencyPreparednessLevel = emergencyPreparednessLevel;
     }
 
-    public String getLocationRiskLevel() {
-        return locationRiskLevel;
+    public Boolean getHasProfessionalSecurity() {
+        return hasProfessionalSecurity;
     }
 
-    public void setLocationRiskLevel(String locationRiskLevel) {
-        this.locationRiskLevel = locationRiskLevel;
+    public void setHasProfessionalSecurity(Boolean hasProfessionalSecurity) {
+        this.hasProfessionalSecurity = hasProfessionalSecurity;
     }
 
-    public String getSecurityLevel() {
-        return securityLevel;
+    public Boolean getHasCCTV() {
+        return hasCCTV;
     }
 
-    public void setSecurityLevel(String securityLevel) {
-        this.securityLevel = securityLevel;
+    public void setHasCCTV(Boolean hasCCTV) {
+        this.hasCCTV = hasCCTV;
+    }
+
+    public Boolean getHasMetalDetectors() {
+        return hasMetalDetectors;
+    }
+
+    public void setHasMetalDetectors(Boolean hasMetalDetectors) {
+        this.hasMetalDetectors = hasMetalDetectors;
+    }
+
+    public Boolean getHasFireNOC() {
+        return hasFireNOC;
+    }
+
+    public void setHasFireNOC(Boolean hasFireNOC) {
+        this.hasFireNOC = hasFireNOC;
+    }
+
+    public Boolean getHasOnSiteFireSafety() {
+        return hasOnSiteFireSafety;
+    }
+
+    public void setHasOnSiteFireSafety(Boolean hasOnSiteFireSafety) {
+        this.hasOnSiteFireSafety = hasOnSiteFireSafety;
     }
 }

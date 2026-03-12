@@ -49,7 +49,7 @@ public class AuthController {
 
         // Generate token with role
         String token = jwtUtil.generateToken(request.getEmail(), roleName);
-        LoginResponse loginResponse = new LoginResponse(token);
+        LoginResponse loginResponse = new LoginResponse(token, user.getFullName(), user.getEmail(), roleName);
 
         return ResponseEntity.ok(ApiResponse.success("Login successful", loginResponse));
     }

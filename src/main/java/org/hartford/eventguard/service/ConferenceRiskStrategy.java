@@ -46,6 +46,18 @@ public class ConferenceRiskStrategy implements RiskCalculationStrategy {
             risk += 1.0;
         }
 
+        // --- NEW OBJECTIVE CHECKS ---
+
+        // No Fire NOC is a major risk for conferences with high-value equipment (+2.5)
+        if (!Boolean.TRUE.equals(event.getHasFireNOC())) {
+            risk += 2.5;
+        }
+
+        // CCTV helps reduce equipment theft risk (-0.5)
+        if (Boolean.TRUE.equals(event.getHasCCTV())) {
+            risk -= 0.5;
+        }
+
         return risk;
     }
 }

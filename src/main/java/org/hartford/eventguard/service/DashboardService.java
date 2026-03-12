@@ -43,6 +43,15 @@ public class DashboardService {
         // Get pending claims
         long pendingClaims = claimsRepository.countByStatus(ClaimStatus.PENDING);
 
+        // Calculate Financials
+        Double totalRevenue = policySubscriptionRepository.sumPaidPremiums();
+        if (totalRevenue == null) totalRevenue = 0.0;
+
+        Double totalPayouts = claimsRepository.sumApprovedPayouts();
+        if (totalPayouts == null) totalPayouts = 0.0;
+
+        double netProfit = totalRevenue - totalPayouts;
+
         // Create and return response
         DashboardStatsResponse stats = new DashboardStatsResponse();
         stats.setTotalPolicies(totalPolicies);
@@ -50,6 +59,9 @@ public class DashboardService {
         stats.setTotalEvents(totalEvents);
         stats.setPendingSubscriptions(pendingSubscriptions);
         stats.setPendingClaims(pendingClaims);
+        stats.setTotalRevenue(totalRevenue);
+        stats.setTotalPayouts(totalPayouts);
+        stats.setNetProfit(netProfit);
 
         return stats;
     }

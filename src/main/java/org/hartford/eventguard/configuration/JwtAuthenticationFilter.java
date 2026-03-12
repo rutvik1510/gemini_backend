@@ -42,6 +42,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private CustomUserDetailsService userDetailsService;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return PUBLIC_ENDPOINTS.stream().anyMatch(path::startsWith);
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain)
@@ -55,36 +61,46 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 1️⃣ Check Bearer token
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            username = jwtUtil.extractUsername(token);
+            try {
+                username = jwtUtil.extractUsername(token);
+            } catch (io.jsonwebtoken.ExpiredJwtException e) {
+                logger.warning("JWT token has expired");
+            } catch (io.jsonwebtoken.JwtException e) {
+                logger.warning("Invalid JWT token");
+            }
         }
 
         // 2️⃣ Validate and authenticate
         if (username != null &&
                 SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            UserDetails userDetails =
-                    userDetailsService.loadUserByUsername(username);
+            try {
+                UserDetails userDetails =
+                        userDetailsService.loadUserByUsername(username);
 
-            if (jwtUtil.validateToken(token)) {
-                System.out.println("========================================");
-                System.out.println("User: " + username);
-                System.out.println("Authorities: " + userDetails.getAuthorities());
-                System.out.println("========================================");
+                if (jwtUtil.validateToken(token)) {
+                    System.out.println("========================================");
+                    System.out.println("User: " + username);
+                    System.out.println("Authorities: " + userDetails.getAuthorities());
+                    System.out.println("========================================");
 
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
 
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource()
-                                .buildDetails(request)
-                );
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource()
+                                    .buildDetails(request)
+                    );
 
-                SecurityContextHolder.getContext()
-                        .setAuthentication(authToken);
+                    SecurityContextHolder.getContext()
+                            .setAuthentication(authToken);
+                }
+            } catch (org.springframework.security.core.userdetails.UsernameNotFoundException e) {
+                logger.warning("JWT token refers to a user that no longer exists: " + username);
             }
         }
 

@@ -6,6 +6,7 @@ import java.time.LocalDate;
 public class EventResponse {
 
     private Long eventId;
+    private Long subscriptionId;
     private String eventName;
     private EventDomain eventType;
     private String customerName;
@@ -60,6 +61,14 @@ public class EventResponse {
 
     public void setEventId(Long eventId) {
         this.eventId = eventId;
+    }
+
+    public Long getSubscriptionId() {
+        return subscriptionId;
+    }
+
+    public void setSubscriptionId(Long subscriptionId) {
+        this.subscriptionId = subscriptionId;
     }
 
     public String getEventName() {

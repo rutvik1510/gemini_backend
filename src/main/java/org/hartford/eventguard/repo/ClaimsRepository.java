@@ -17,5 +17,8 @@ public interface ClaimsRepository extends JpaRepository<Claim, Long> {
     // Check if claim already exists for subscription
     boolean existsByPolicySubscription_SubscriptionId(Long subscriptionId);
 
+    @org.springframework.data.jpa.repository.Query("SELECT SUM(c.claimAmount) FROM Claim c WHERE c.status IN ('APPROVED', 'COLLECTED')")
+    Double sumApprovedPayouts();
+
     java.util.Optional<Claim> findByPolicySubscription_SubscriptionId(Long subscriptionId);
 }

@@ -24,6 +24,9 @@ public interface PolicySubscriptionRepository extends JpaRepository<PolicySubscr
 
     List<PolicySubscription> findByEvent_EventId(Long eventId);
 
+    @org.springframework.data.jpa.repository.Query("SELECT SUM(ps.premiumAmount) FROM PolicySubscription ps WHERE ps.status = 'PAID'")
+    Double sumPaidPremiums();
+
     // Fetch subscription with all related entities
     @Query("""
         SELECT ps FROM PolicySubscription ps

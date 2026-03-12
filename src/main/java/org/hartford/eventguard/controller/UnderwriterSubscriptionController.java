@@ -48,10 +48,11 @@ public class UnderwriterSubscriptionController {
     @PutMapping("/{id}/reject")
     public ResponseEntity<ApiResponse<String>> rejectSubscription(
             @PathVariable Long id,
+            @RequestParam(required = false) String reason,
             Authentication authentication) {
 
         String email = authentication.getName();
-        subscriptionService.rejectSubscription(id, email);
+        subscriptionService.rejectSubscription(id, email, reason);
         return ResponseEntity.ok(ApiResponse.success("Subscription rejected"));
     }
 }

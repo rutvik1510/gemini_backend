@@ -5,6 +5,7 @@ import org.hartford.eventguard.entity.*;
 import org.hartford.eventguard.exception.InvalidRequestException;
 import org.hartford.eventguard.exception.ResourceNotFoundException;
 import org.hartford.eventguard.exception.UnauthorizedAccessException;
+import org.hartford.eventguard.repo.ClaimsRepository;
 import org.hartford.eventguard.repo.EventRepository;
 import org.hartford.eventguard.repo.PolicyRepository;
 import org.hartford.eventguard.repo.PolicySubscriptionRepository;
@@ -24,17 +25,20 @@ public class PolicySubscriptionService {
     private final PolicyRepository policyRepository;
     private final UserRepository userRepository;
     private final RiskCalculationService riskCalculationService;
+    private final ClaimsRepository claimsRepository;
 
     public PolicySubscriptionService(PolicySubscriptionRepository subscriptionRepository,
                                      EventRepository eventRepository,
                                      PolicyRepository policyRepository,
                                      UserRepository userRepository,
-                                     RiskCalculationService riskCalculationService) {
+                                     RiskCalculationService riskCalculationService,
+                                     ClaimsRepository claimsRepository) {
         this.subscriptionRepository = subscriptionRepository;
         this.eventRepository = eventRepository;
         this.policyRepository = policyRepository;
         this.userRepository = userRepository;
         this.riskCalculationService = riskCalculationService;
+        this.claimsRepository = claimsRepository;
     }
 
     public CustomerSubscriptionResponse createSubscription(Long eventId, Long policyId, String email) {
@@ -157,7 +161,7 @@ public class PolicySubscriptionService {
         return convertToDTO(subscription);
     }
 
-    public SubscriptionResponseDTO rejectSubscription(Long id, String email) {
+    public SubscriptionResponseDTO rejectSubscription(Long id, String email, String reason) {
         // Fetch subscription
         PolicySubscription subscription = subscriptionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Subscription not found"));
@@ -170,6 +174,7 @@ public class PolicySubscriptionService {
         subscription.setStatus(SubscriptionStatus.REJECTED);
         subscription.setApprovedAt(LocalDateTime.now());
         subscription.setApprovedBy(user);
+        subscription.setRejectionReason(reason);
 
         subscriptionRepository.save(subscription);
 
@@ -367,6 +372,7 @@ public class PolicySubscriptionService {
         dto.setRiskPercentage(subscription.getRiskPercentage());
         dto.setPremiumAmount(subscription.getPremiumAmount());
         dto.setPaid(subscription.isPaid());
+        dto.setHasClaim(claimsRepository.existsByPolicySubscription_SubscriptionId(subscription.getSubscriptionId()));
         dto.setStatus(subscription.getStatus().toString());
         dto.setRequestedAt(subscription.getRequestedAt());
         return dto;
@@ -434,6 +440,14 @@ public class PolicySubscriptionService {
         // Premium and status
         dto.setPremiumAmount(subscription.getPremiumAmount());
         dto.setStatus(subscription.getStatus().toString());
+        dto.setRejectionReason(subscription.getRejectionReason());
+
+        // Objective Security & Safety fields
+        dto.setHasProfessionalSecurity(event.getHasProfessionalSecurity());
+        dto.setHasCCTV(event.getHasCCTV());
+        dto.setHasMetalDetectors(event.getHasMetalDetectors());
+        dto.setHasFireNOC(event.getHasFireNOC());
+        dto.setHasOnSiteFireSafety(event.getHasOnSiteFireSafety());
 
         return dto;
     }

@@ -7,17 +7,11 @@ public class DashboardStatsResponse {
     private Long totalEvents;
     private Long pendingSubscriptions;
     private Long pendingClaims;
+    private Double totalRevenue;
+    private Double totalPayouts;
+    private Double netProfit;
 
     public DashboardStatsResponse() {
-    }
-
-    public DashboardStatsResponse(Long totalPolicies, Long activePolicies, Long totalEvents, 
-                                  Long pendingSubscriptions, Long pendingClaims) {
-        this.totalPolicies = totalPolicies;
-        this.activePolicies = activePolicies;
-        this.totalEvents = totalEvents;
-        this.pendingSubscriptions = pendingSubscriptions;
-        this.pendingClaims = pendingClaims;
     }
 
     public Long getTotalPolicies() {
@@ -58,5 +52,29 @@ public class DashboardStatsResponse {
 
     public void setPendingClaims(Long pendingClaims) {
         this.pendingClaims = pendingClaims;
+    }
+
+    public Double getTotalRevenue() {
+        return totalRevenue;
+    }
+
+    public void setTotalRevenue(Double totalRevenue) {
+        this.totalRevenue = totalRevenue;
+    }
+
+    public Double getTotalPayouts() {
+        return totalPayouts;
+    }
+
+    public void setTotalPayouts(Double totalPayouts) {
+        this.totalPayouts = totalPayouts;
+    }
+
+    public Double getNetProfit() {
+        return netProfit;
+    }
+
+    public void setNetProfit(Double netProfit) {
+        this.netProfit = netProfit;
     }
 }

@@ -73,55 +73,43 @@ public class AdminUserService {
         return "Claims Officer created successfully";
     }
 
-    public List<Map<String, Object>> getUnderwriters() {
+    public List<AdminUserResponse> getUnderwriters() {
         Role underwriterRole = roleRepository.findByRoleName("UNDERWRITER")
                 .orElseThrow(() -> new RuntimeException("UNDERWRITER role not found"));
 
         return userRepository.findAll().stream()
                 .filter(user -> user.getRoles().contains(underwriterRole))
-                .map(user -> {
-                    Map<String, Object> userMap = new HashMap<>();
-                    userMap.put("userId", user.getUserId());
-                    userMap.put("fullName", user.getFullName());
-                    userMap.put("email", user.getEmail());
-                    userMap.put("isActive", user.isActive());
-                    return userMap;
-                })
+                .map(this::convertToAdminUserResponse)
                 .collect(Collectors.toList());
     }
 
-    public List<Map<String, Object>> getClaimsOfficers() {
+    public List<AdminUserResponse> getClaimsOfficers() {
         Role claimsOfficerRole = roleRepository.findByRoleName("CLAIMS_OFFICER")
                 .orElseThrow(() -> new RuntimeException("CLAIMS_OFFICER role not found"));
 
         return userRepository.findAll().stream()
                 .filter(user -> user.getRoles().contains(claimsOfficerRole))
-                .map(user -> {
-                    Map<String, Object> userMap = new HashMap<>();
-                    userMap.put("userId", user.getUserId());
-                    userMap.put("fullName", user.getFullName());
-                    userMap.put("email", user.getEmail());
-                    userMap.put("isActive", user.isActive());
-                    return userMap;
-                })
+                .map(this::convertToAdminUserResponse)
                 .collect(Collectors.toList());
+    }
+
+    private AdminUserResponse convertToAdminUserResponse(User user) {
+        AdminUserResponse response = new AdminUserResponse();
+        response.setUserId(user.getUserId());
+        response.setFullName(user.getFullName());
+        response.setEmail(user.getEmail());
+        response.setPhone(user.getPhone());
+        response.setCompanyName(user.getCompanyName());
+        response.setActive(user.isActive());
+        response.setRoles(user.getRoles().stream()
+                .map(Role::getRoleName)
+                .collect(Collectors.toList()));
+        return response;
     }
 
     public List<AdminUserResponse> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(user -> {
-                    AdminUserResponse response = new AdminUserResponse();
-                    response.setUserId(user.getUserId());
-                    response.setFullName(user.getFullName());
-                    response.setEmail(user.getEmail());
-                    response.setPhone(user.getPhone());
-                    response.setCompanyName(user.getCompanyName());
-                    response.setActive(user.isActive());
-                    response.setRoles(user.getRoles().stream()
-                            .map(Role::getRoleName)
-                            .collect(Collectors.toList()));
-                    return response;
-                })
+                .map(this::convertToAdminUserResponse)
                 .collect(Collectors.toList());
     }
 }

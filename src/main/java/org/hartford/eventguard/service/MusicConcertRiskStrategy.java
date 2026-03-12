@@ -51,6 +51,18 @@ public class MusicConcertRiskStrategy implements RiskCalculationStrategy {
             risk += 1.0;
         }
 
+        // --- NEW OBJECTIVE CHECKS ---
+        
+        // No Fire NOC is a major risk (+3.0)
+        if (!Boolean.TRUE.equals(event.getHasFireNOC())) {
+            risk += 3.0;
+        }
+
+        // Presence of metal detectors at a concert reduces risk (-0.5)
+        if (Boolean.TRUE.equals(event.getHasMetalDetectors())) {
+            risk -= 0.5;
+        }
+
         return risk;
     }
 }

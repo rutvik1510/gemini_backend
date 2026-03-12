@@ -36,9 +36,15 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private VenueType venueType;
 
-    private String locationRiskLevel;   // LOW / MEDIUM / HIGH
+    private String locationRiskLevel;   // Calculated by system
+    private String securityLevel;       // Calculated by system
 
-    private String securityLevel;       // LOW / MEDIUM / HIGH
+    // Objective fields
+    private Boolean hasProfessionalSecurity;
+    private Boolean hasCCTV;
+    private Boolean hasMetalDetectors;
+    private Boolean hasFireNOC;
+    private Boolean hasOnSiteFireSafety;
 
     // ---------------- MUSIC CONCERT SPECIFIC FIELDS ----------------
 
@@ -232,6 +238,46 @@ public class Event {
 
     public void setSecurityLevel(String securityLevel) {
         this.securityLevel = securityLevel;
+    }
+
+    public Boolean getHasProfessionalSecurity() {
+        return hasProfessionalSecurity;
+    }
+
+    public void setHasProfessionalSecurity(Boolean hasProfessionalSecurity) {
+        this.hasProfessionalSecurity = hasProfessionalSecurity;
+    }
+
+    public Boolean getHasCCTV() {
+        return hasCCTV;
+    }
+
+    public void setHasCCTV(Boolean hasCCTV) {
+        this.hasCCTV = hasCCTV;
+    }
+
+    public Boolean getHasMetalDetectors() {
+        return hasMetalDetectors;
+    }
+
+    public void setHasMetalDetectors(Boolean hasMetalDetectors) {
+        this.hasMetalDetectors = hasMetalDetectors;
+    }
+
+    public Boolean getHasFireNOC() {
+        return hasFireNOC;
+    }
+
+    public void setHasFireNOC(Boolean hasFireNOC) {
+        this.hasFireNOC = hasFireNOC;
+    }
+
+    public Boolean getHasOnSiteFireSafety() {
+        return hasOnSiteFireSafety;
+    }
+
+    public void setHasOnSiteFireSafety(Boolean hasOnSiteFireSafety) {
+        this.hasOnSiteFireSafety = hasOnSiteFireSafety;
     }
 
     public User getUser() {

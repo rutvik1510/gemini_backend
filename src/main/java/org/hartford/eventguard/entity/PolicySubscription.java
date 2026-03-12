@@ -45,6 +45,8 @@ public class PolicySubscription {
     @Column(name = "status", columnDefinition = "VARCHAR(255)")
     private SubscriptionStatus status;
 
+    private String rejectionReason;
+
     private LocalDateTime requestedAt;
 
     private LocalDateTime approvedAt;
@@ -166,6 +168,14 @@ public class PolicySubscription {
 
     public void setStatus(SubscriptionStatus status) {
         this.status = status;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
 
     public LocalDateTime getRequestedAt() {

@@ -28,6 +28,18 @@ public class AdminUserController {
         return ResponseEntity.ok(ApiResponse.success("Users retrieved successfully", users));
     }
 
+    @GetMapping("/underwriters")
+    public ResponseEntity<ApiResponse<List<AdminUserResponse>>> getUnderwriters() {
+        List<AdminUserResponse> users = adminUserService.getUnderwriters();
+        return ResponseEntity.ok(ApiResponse.success("Underwriters retrieved successfully", users));
+    }
+
+    @GetMapping("/claims-officers")
+    public ResponseEntity<ApiResponse<List<AdminUserResponse>>> getClaimsOfficers() {
+        List<AdminUserResponse> users = adminUserService.getClaimsOfficers();
+        return ResponseEntity.ok(ApiResponse.success("Claims Officers retrieved successfully", users));
+    }
+
     @PostMapping("/create-underwriter")
     public ResponseEntity<ApiResponse<String>> createUnderwriter(@RequestBody AdminCreateUserRequest request) {
         String message = adminUserService.createUnderwriter(request);

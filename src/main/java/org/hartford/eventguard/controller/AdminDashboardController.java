@@ -1,5 +1,6 @@
 package org.hartford.eventguard.controller;
 
+import org.hartford.eventguard.dto.AdminUserResponse;
 import org.hartford.eventguard.dto.ApiResponse;
 import org.hartford.eventguard.dto.DashboardStatsResponse;
 import org.hartford.eventguard.service.AdminUserService;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/dashboard")
@@ -31,12 +31,12 @@ public class AdminDashboardController {
     }
 
     @GetMapping("/underwriters")
-    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getUnderwriters() {
+    public ResponseEntity<ApiResponse<List<AdminUserResponse>>> getUnderwriters() {
         return ResponseEntity.ok(ApiResponse.success("Underwriters fetched", adminUserService.getUnderwriters()));
     }
 
     @GetMapping("/claims-officers")
-    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getClaimsOfficers() {
+    public ResponseEntity<ApiResponse<List<AdminUserResponse>>> getClaimsOfficers() {
         return ResponseEntity.ok(ApiResponse.success("Claims officers fetched", adminUserService.getClaimsOfficers()));
     }
 }

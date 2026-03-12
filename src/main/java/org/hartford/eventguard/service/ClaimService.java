@@ -59,15 +59,6 @@ public class ClaimService {
             throw new InvalidRequestException("Claim can only be filed for paid policies");
         }
 
-        // Validation temporarily disabled for development testing.
-        // In production, claims should only be allowed after the event date.
-        // if (validateEventDate) {
-        //     Event event = subscription.getEvent();
-        //     if (java.time.LocalDate.now().isBefore(event.getEventDate())) {
-        //         throw new InvalidRequestException("Claims can only be filed after the event date");
-        //     }
-        // }
-
         // Validate no existing claim for this subscription
         boolean claimExists = claimsRepository
                 .existsByPolicySubscription_SubscriptionId(request.getSubscriptionId());

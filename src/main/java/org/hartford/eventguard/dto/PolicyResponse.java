@@ -10,9 +10,54 @@ public class PolicyResponse {
     private EventDomain domain;
     private Double baseRate;
     private Double maxCoverageAmount;
+    private Double deductible;
+    private Boolean coversTheft;
+    private Boolean coversWeather;
+    private Boolean coversFire;
+    private Boolean coversCancelation;
     private Boolean isActive;
 
     public PolicyResponse() {
+    }
+
+    public Double getDeductible() {
+        return deductible;
+    }
+
+    public void setDeductible(Double deductible) {
+        this.deductible = deductible;
+    }
+
+    public Boolean getCoversTheft() {
+        return coversTheft;
+    }
+
+    public void setCoversTheft(Boolean coversTheft) {
+        this.coversTheft = coversTheft;
+    }
+
+    public Boolean getCoversWeather() {
+        return coversWeather;
+    }
+
+    public void setCoversWeather(Boolean coversWeather) {
+        this.coversWeather = coversWeather;
+    }
+
+    public Boolean getCoversFire() {
+        return coversFire;
+    }
+
+    public void setCoversFire(Boolean coversFire) {
+        this.coversFire = coversFire;
+    }
+
+    public Boolean getCoversCancelation() {
+        return coversCancelation;
+    }
+
+    public void setCoversCancelation(Boolean coversCancelation) {
+        this.coversCancelation = coversCancelation;
     }
 
     public Long getPolicyId() {

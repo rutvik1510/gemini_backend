@@ -20,9 +20,12 @@ public class MusicEventRequest {
     private Boolean fireworksUsed;
     private Boolean celebrityInvolved;
 
-    // Risk assessment fields
-    private String locationRiskLevel;
-    private String securityLevel;
+    // Objective Security & Safety fields
+    private Boolean hasProfessionalSecurity;
+    private Boolean hasCCTV;
+    private Boolean hasMetalDetectors;
+    private Boolean hasFireNOC;
+    private Boolean hasOnSiteFireSafety;
 
     public MusicEventRequest() {
     }
@@ -124,19 +127,43 @@ public class MusicEventRequest {
         this.celebrityInvolved = celebrityInvolved;
     }
 
-    public String getLocationRiskLevel() {
-        return locationRiskLevel;
+    public Boolean getHasProfessionalSecurity() {
+        return hasProfessionalSecurity;
     }
 
-    public void setLocationRiskLevel(String locationRiskLevel) {
-        this.locationRiskLevel = locationRiskLevel;
+    public void setHasProfessionalSecurity(Boolean hasProfessionalSecurity) {
+        this.hasProfessionalSecurity = hasProfessionalSecurity;
     }
 
-    public String getSecurityLevel() {
-        return securityLevel;
+    public Boolean getHasCCTV() {
+        return hasCCTV;
     }
 
-    public void setSecurityLevel(String securityLevel) {
-        this.securityLevel = securityLevel;
+    public void setHasCCTV(Boolean hasCCTV) {
+        this.hasCCTV = hasCCTV;
+    }
+
+    public Boolean getHasMetalDetectors() {
+        return hasMetalDetectors;
+    }
+
+    public void setHasMetalDetectors(Boolean hasMetalDetectors) {
+        this.hasMetalDetectors = hasMetalDetectors;
+    }
+
+    public Boolean getHasFireNOC() {
+        return hasFireNOC;
+    }
+
+    public void setHasFireNOC(Boolean hasFireNOC) {
+        this.hasFireNOC = hasFireNOC;
+    }
+
+    public Boolean getHasOnSiteFireSafety() {
+        return hasOnSiteFireSafety;
+    }
+
+    public void setHasOnSiteFireSafety(Boolean hasOnSiteFireSafety) {
+        this.hasOnSiteFireSafety = hasOnSiteFireSafety;
     }
 }

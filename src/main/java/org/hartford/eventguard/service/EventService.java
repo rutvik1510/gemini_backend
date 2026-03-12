@@ -54,8 +54,17 @@ public class EventService {
         event.setNumberOfAttendees(request.getNumberOfAttendees());
         event.setDurationInDays(request.getDurationInDays());
         event.setVenueType(request.getVenueType());
-        event.setLocationRiskLevel(request.getLocationRiskLevel());
-        event.setSecurityLevel(request.getSecurityLevel());
+
+        // Objective fields
+        event.setHasProfessionalSecurity(request.getHasProfessionalSecurity());
+        event.setHasCCTV(request.getHasCCTV());
+        event.setHasMetalDetectors(request.getHasMetalDetectors());
+        event.setHasFireNOC(request.getHasFireNOC());
+        event.setHasOnSiteFireSafety(request.getHasOnSiteFireSafety());
+
+        // Calculate Risk Levels
+        event.setSecurityLevel(calculateSecurityLevel(request));
+        event.setLocationRiskLevel(calculateLocationRiskLevel(request));
 
         // Music concert specific fields
         event.setIsOutdoor(request.getIsOutdoor());
@@ -141,8 +150,17 @@ public class EventService {
         event.setNumberOfAttendees(request.getNumberOfAttendees());
         event.setDurationInDays(request.getDurationInDays());
         event.setVenueType(request.getVenueType());
-        event.setLocationRiskLevel(request.getLocationRiskLevel());
-        event.setSecurityLevel(request.getSecurityLevel());
+
+        // Objective fields
+        event.setHasProfessionalSecurity(request.getHasProfessionalSecurity());
+        event.setHasCCTV(request.getHasCCTV());
+        event.setHasMetalDetectors(request.getHasMetalDetectors());
+        event.setHasFireNOC(request.getHasFireNOC());
+        event.setHasOnSiteFireSafety(request.getHasOnSiteFireSafety());
+
+        // Calculate Risk Levels
+        event.setSecurityLevel(calculateSecurityLevel(request));
+        event.setLocationRiskLevel(calculateLocationRiskLevel(request));
 
         // Music concert specific fields
         event.setAlcoholAllowed(request.getAlcoholAllowed());
@@ -212,8 +230,17 @@ public class EventService {
         event.setBudget(request.getBudget());
         event.setNumberOfAttendees(request.getNumberOfAttendees());
         event.setDurationInDays(request.getDurationInDays());
-        event.setLocationRiskLevel(request.getLocationRiskLevel());
-        event.setSecurityLevel(request.getSecurityLevel());
+
+        // Objective fields
+        event.setHasProfessionalSecurity(request.getHasProfessionalSecurity());
+        event.setHasCCTV(request.getHasCCTV());
+        event.setHasMetalDetectors(request.getHasMetalDetectors());
+        event.setHasFireNOC(request.getHasFireNOC());
+        event.setHasOnSiteFireSafety(request.getHasOnSiteFireSafety());
+
+        // Calculate Risk Levels
+        event.setSecurityLevel(calculateSecurityLevel(request));
+        event.setLocationRiskLevel(calculateLocationRiskLevel(request));
 
         // Corporate-specific fields
         event.setVenueType(request.getVenueType());
@@ -258,8 +285,17 @@ public class EventService {
         event.setBudget(request.getBudget());
         event.setNumberOfAttendees(request.getNumberOfAttendees());
         event.setDurationInDays(request.getDurationInDays());
-        event.setLocationRiskLevel(request.getLocationRiskLevel());
-        event.setSecurityLevel(request.getSecurityLevel());
+
+        // Objective fields
+        event.setHasProfessionalSecurity(request.getHasProfessionalSecurity());
+        event.setHasCCTV(request.getHasCCTV());
+        event.setHasMetalDetectors(request.getHasMetalDetectors());
+        event.setHasFireNOC(request.getHasFireNOC());
+        event.setHasOnSiteFireSafety(request.getHasOnSiteFireSafety());
+
+        // Calculate Risk Levels
+        event.setSecurityLevel(calculateSecurityLevel(request));
+        event.setLocationRiskLevel(calculateLocationRiskLevel(request));
 
         // Music-specific fields
         event.setIsOutdoor(request.getIsOutdoor());
@@ -324,6 +360,7 @@ public class EventService {
         List<PolicySubscription> subscriptions = subscriptionRepository.findByEvent_EventId(event.getEventId());
         if (!subscriptions.isEmpty()) {
             PolicySubscription sub = subscriptions.get(0);
+            dto.setSubscriptionId(sub.getSubscriptionId());
             dto.setStatus(sub.getStatus().toString());
             dto.setIsPremiumPaid(sub.isPaid());
 
@@ -354,6 +391,51 @@ public class EventService {
 
     private EventResponse convertToResponse(Event event) {
         return convertToDTO(event);
+    }
+
+    private String calculateSecurityLevel(EventRequest request) {
+        return calculateSecurity(request.getHasProfessionalSecurity(), request.getHasCCTV(), request.getHasMetalDetectors());
+    }
+
+    private String calculateSecurityLevel(CorporateEventRequest request) {
+        return calculateSecurity(request.getHasProfessionalSecurity(), request.getHasCCTV(), request.getHasMetalDetectors());
+    }
+
+    private String calculateSecurityLevel(MusicEventRequest request) {
+        return calculateSecurity(request.getHasProfessionalSecurity(), request.getHasCCTV(), request.getHasMetalDetectors());
+    }
+
+    private String calculateSecurity(Boolean hasSecurity, Boolean hasCCTV, Boolean hasDetectors) {
+        int score = 0;
+        if (Boolean.TRUE.equals(hasSecurity)) score += 2;
+        if (Boolean.TRUE.equals(hasCCTV)) score += 1;
+        if (Boolean.TRUE.equals(hasDetectors)) score += 1;
+
+        if (score >= 3) return "HIGH";
+        if (score >= 1) return "MEDIUM";
+        return "LOW";
+    }
+
+    private String calculateLocationRiskLevel(EventRequest request) {
+        return calculateLocationRisk(request.getHasFireNOC(), request.getHasOnSiteFireSafety());
+    }
+
+    private String calculateLocationRiskLevel(CorporateEventRequest request) {
+        return calculateLocationRisk(request.getHasFireNOC(), request.getHasOnSiteFireSafety());
+    }
+
+    private String calculateLocationRiskLevel(MusicEventRequest request) {
+        return calculateLocationRisk(request.getHasFireNOC(), request.getHasOnSiteFireSafety());
+    }
+
+    private String calculateLocationRisk(Boolean hasFireNOC, Boolean hasFireSafety) {
+        int safetyScore = 0;
+        if (Boolean.TRUE.equals(hasFireNOC)) safetyScore += 2;
+        if (Boolean.TRUE.equals(hasFireSafety)) safetyScore += 1;
+
+        if (safetyScore >= 3) return "LOW";
+        if (safetyScore >= 1) return "MEDIUM";
+        return "HIGH";
     }
 }
 
