@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <title>Create Event</title>
+
+  <style>
+
+    body{
+        font-family: Arial, sans-serif;
+        background-color:#f5f7fb;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        height:100vh;
+    }
+
+    .container{
+        background:white;
+        padding:30px;
+        border-radius:10px;
+        box-shadow:0 4px 10px rgba(0,0,0,0.1);
+        width:350px;
+    }
+
+    h2{
+        text-align:center;
+        margin-bottom:20px;
+    }
+
+    input{
+        width:100%;
+        padding:10px;
+        margin-bottom:12px;
+        border-radius:6px;
+        border:1px solid #ccc;
+    }
+
+    button{
+        width:100%;
+        padding:10px;
+        background:#2d6cdf;
+        color:white;
+        border:none;
+        border-radius:6px;
+        cursor:pointer;
+        font-weight:bold;
+    }
+
+    button:hover{
+        background:#1f4fbf;
+    }
+
+    #msg{
+        margin-top:15px;
+        text-align:center;
+        font-weight:bold;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+  <h2>Create Event</h2>
+
+  <input id="eventName" placeholder="Event Name">
+
+  <input id="location" placeholder="Location">
+
+  <input id="budget" placeholder="Budget">
+
+  <button onclick="createEvent()">Create Event</button>
+
+  <p id="msg"></p>
+
+</div>
+
+<script>
+
+  async function createEvent(){
+
+      const token = localStorage.getItem("token");
+
+      const response = await fetch("http://localhost:8080/events",{
+
+          method:"POST",
+
+          headers:{
+              "Content-Type":"application/json",
+              "Authorization":"Bearer " + token
+          },
+
+          body: JSON.stringify({
+
+              eventName:document.getElementById("eventName").value,
+              location:document.getElementById("location").value,
+              budget:parseInt(document.getElementById("budget").value),
+
+              eventType:"OUTDOOR_MUSIC_CONCERT",
+              numberOfAttendees:500,
+              durationInDays:1,
+              isOutdoor:true,
+              alcoholAllowed:true,
+              temporaryStructure:true,
+              fireworksUsed:false,
+              celebrityInvolved:false,
+              locationRiskLevel:"MEDIUM",
+              securityLevel:"MEDIUM"
+
+          })
+
+      });
+
+      const data = await response.text();
+
+      document.getElementById("msg").innerText=data;
+
+  }
+
+</script>
+
+</body>
+
+</html>
