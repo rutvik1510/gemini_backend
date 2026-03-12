@@ -177,6 +177,29 @@ public class PolicySubscriptionService {
         return convertToDTO(subscription);
     }
 
+    public String payPremium(Long subscriptionId, String email) {
+        PolicySubscription subscription = subscriptionRepository.findById(subscriptionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Subscription not found"));
+
+        if (!subscription.getEvent().getUser().getEmail().equals(email)) {
+            throw new UnauthorizedAccessException("Unauthorized to pay for this subscription");
+        }
+
+        if (subscription.getStatus() != SubscriptionStatus.APPROVED) {
+            throw new InvalidRequestException("Premium can only be paid for approved subscriptions");
+        }
+
+        if (subscription.isPaid()) {
+            throw new InvalidRequestException("Premium is already paid for this subscription");
+        }
+
+        subscription.setPaid(true);
+        subscription.setStatus(SubscriptionStatus.PAID);
+        subscriptionRepository.save(subscription);
+
+        return "Premium paid successfully";
+    }
+
     public QuoteResponse calculateQuote(Long eventId, Long policyId) {
         // Fetch Event
         Event event = eventRepository.findById(eventId)
@@ -343,6 +366,7 @@ public class PolicySubscriptionService {
         dto.setRiskLevel(getRiskLevel(subscription.getRiskPercentage()));
         dto.setRiskPercentage(subscription.getRiskPercentage());
         dto.setPremiumAmount(subscription.getPremiumAmount());
+        dto.setPaid(subscription.isPaid());
         dto.setStatus(subscription.getStatus().toString());
         dto.setRequestedAt(subscription.getRequestedAt());
         return dto;

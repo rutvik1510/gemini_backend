@@ -14,8 +14,44 @@ public class EventResponse {
     private Double budget;
     private Integer numberOfAttendees;
     private Integer durationInDays;
+    private String status;
+    private Boolean isPremiumPaid;
+    private Boolean hasClaim;
+    private String claimStatus;
 
     public EventResponse() {
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Boolean getIsPremiumPaid() {
+        return isPremiumPaid;
+    }
+
+    public void setIsPremiumPaid(Boolean isPremiumPaid) {
+        this.isPremiumPaid = isPremiumPaid;
+    }
+
+    public Boolean getHasClaim() {
+        return hasClaim;
+    }
+
+    public void setHasClaim(Boolean hasClaim) {
+        this.hasClaim = hasClaim;
+    }
+
+    public String getClaimStatus() {
+        return claimStatus;
+    }
+
+    public void setClaimStatus(String claimStatus) {
+        this.claimStatus = claimStatus;
     }
 
     public Long getEventId() {

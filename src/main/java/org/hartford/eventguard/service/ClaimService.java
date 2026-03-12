@@ -54,9 +54,9 @@ public class ClaimService {
             throw new UnauthorizedAccessException("You do not have permission to file claim for this subscription");
         }
 
-        // Validate subscription is approved
-        if (subscription.getStatus() != SubscriptionStatus.APPROVED) {
-            throw new InvalidRequestException("Claim can only be filed for approved policies");
+        // Validate subscription is paid
+        if (subscription.getStatus() != SubscriptionStatus.PAID) {
+            throw new InvalidRequestException("Claim can only be filed for paid policies");
         }
 
         // Validation temporarily disabled for development testing.
@@ -168,6 +168,32 @@ public class ClaimService {
         return convertToDTO(claim);
     }
 
+    public ClaimResponse collectClaim(Long claimId, String email) {
+        // Fetch user
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // Fetch claim
+        Claim claim = claimsRepository.findById(claimId)
+                .orElseThrow(() -> new ResourceNotFoundException("Claim not found"));
+
+        // Validate claim belongs to user
+        if (!claim.getPolicySubscription().getEvent().getUser().getUserId().equals(user.getUserId())) {
+            throw new UnauthorizedAccessException("Unauthorized to collect this claim");
+        }
+
+        // Validate claim is approved
+        if (claim.getStatus() != ClaimStatus.APPROVED) {
+            throw new InvalidRequestException("Only approved claims can be collected");
+        }
+
+        // Update status
+        claim.setStatus(ClaimStatus.COLLECTED);
+        claimsRepository.save(claim);
+
+        return convertToClaimResponse(claim);
+    }
+
     private ClaimResponseDTO convertToDTO(Claim claim) {
         ClaimResponseDTO dto = new ClaimResponseDTO();
         dto.setClaimId(claim.getClaimId());
@@ -212,6 +238,7 @@ public class ClaimService {
 
         // Claim info
         dto.setClaimId(claim.getClaimId());
+        dto.setSubscriptionId(claim.getPolicySubscription().getSubscriptionId());
         dto.setClaimAmount(claim.getClaimAmount());
         dto.setDescription(claim.getDescription());
         dto.setStatus(claim.getStatus().toString());

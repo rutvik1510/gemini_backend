@@ -22,6 +22,7 @@ public class Claim {
     private Double claimAmount;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status", columnDefinition = "VARCHAR(255)")
     private ClaimStatus status;
 
     private LocalDateTime filedAt;

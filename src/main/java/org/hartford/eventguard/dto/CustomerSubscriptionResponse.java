@@ -18,6 +18,7 @@ public class CustomerSubscriptionResponse {
     private Double weatherRisk;
     private Double riskPercentage;
     private Double premiumAmount;
+    private Boolean isPaid;
     private String status;
     private LocalDateTime requestedAt;
 
@@ -86,6 +87,14 @@ public class CustomerSubscriptionResponse {
 
     public void setPremiumAmount(Double premiumAmount) {
         this.premiumAmount = premiumAmount;
+    }
+
+    public Boolean isPaid() {
+        return isPaid != null && isPaid;
+    }
+
+    public void setPaid(Boolean paid) {
+        isPaid = paid;
     }
 
     public String getStatus() {

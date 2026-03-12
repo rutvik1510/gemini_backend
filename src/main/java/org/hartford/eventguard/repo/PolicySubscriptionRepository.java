@@ -22,6 +22,8 @@ public interface PolicySubscriptionRepository extends JpaRepository<PolicySubscr
 
     boolean existsByEvent_EventIdAndPolicy_PolicyId(Long eventId, Long policyId);
 
+    List<PolicySubscription> findByEvent_EventId(Long eventId);
+
     // Fetch subscription with all related entities
     @Query("""
         SELECT ps FROM PolicySubscription ps

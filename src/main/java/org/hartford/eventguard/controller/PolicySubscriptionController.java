@@ -63,4 +63,13 @@ public class PolicySubscriptionController {
         List<CustomerSubscriptionResponse> subscriptions = subscriptionService.getCustomerSubscriptionsDTO(email);
         return ResponseEntity.ok(ApiResponse.success("Subscriptions retrieved successfully", subscriptions));
     }
+
+    @PostMapping("/{subscriptionId}/pay-premium")
+    public ResponseEntity<ApiResponse<String>> payPremium(
+            @PathVariable Long subscriptionId,
+            Authentication authentication) {
+        String email = authentication.getName();
+        String message = subscriptionService.payPremium(subscriptionId, email);
+        return ResponseEntity.ok(ApiResponse.success(message, message));
+    }
 }

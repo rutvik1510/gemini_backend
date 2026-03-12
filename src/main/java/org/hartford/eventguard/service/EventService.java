@@ -6,17 +6,18 @@ import org.hartford.eventguard.dto.CorporateEventRequest;
 import org.hartford.eventguard.dto.EventRequest;
 import org.hartford.eventguard.dto.EventResponse;
 import org.hartford.eventguard.dto.MusicEventRequest;
-import org.hartford.eventguard.entity.Event;
-import org.hartford.eventguard.entity.EventDomain;
-import org.hartford.eventguard.entity.User;
+import org.hartford.eventguard.entity.*;
 import org.hartford.eventguard.exception.InvalidRequestException;
 import org.hartford.eventguard.exception.ResourceNotFoundException;
+import org.hartford.eventguard.repo.ClaimsRepository;
 import org.hartford.eventguard.repo.EventRepository;
+import org.hartford.eventguard.repo.PolicySubscriptionRepository;
 import org.hartford.eventguard.repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +28,12 @@ public class EventService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PolicySubscriptionRepository subscriptionRepository;
+
+    @Autowired
+    private ClaimsRepository claimsRepository;
 
     public EventResponse createEvent(EventRequest request, String email) {
 
@@ -181,19 +188,6 @@ public class EventService {
         return convertToDTO(event);
     }
 
-    private EventResponse convertToDTO(Event event) {
-        EventResponse dto = new EventResponse();
-        dto.setEventId(event.getEventId());
-        dto.setEventName(event.getEventName());
-        dto.setEventType(event.getEventType());
-        dto.setLocation(event.getLocation());
-        dto.setEventDate(event.getEventDate());
-        dto.setBudget(event.getBudget());
-        dto.setNumberOfAttendees(event.getNumberOfAttendees());
-        dto.setDurationInDays(event.getDurationInDays());
-        return dto;
-    }
-
     // ========== NEW METHODS FOR SEPARATE EVENT TYPES ==========
 
     public EventResponse createCorporateEvent(CorporateEventRequest request, String email) {
@@ -315,26 +309,51 @@ public class EventService {
         }
     }
 
+    private EventResponse convertToDTO(Event event) {
+        EventResponse dto = new EventResponse();
+        dto.setEventId(event.getEventId());
+        dto.setEventName(event.getEventName());
+        dto.setEventType(event.getEventType());
+        dto.setLocation(event.getLocation());
+        dto.setEventDate(event.getEventDate());
+        dto.setBudget(event.getBudget());
+        dto.setNumberOfAttendees(event.getNumberOfAttendees());
+        dto.setDurationInDays(event.getDurationInDays());
+
+        // Add insurance status info
+        List<PolicySubscription> subscriptions = subscriptionRepository.findByEvent_EventId(event.getEventId());
+        if (!subscriptions.isEmpty()) {
+            PolicySubscription sub = subscriptions.get(0);
+            dto.setStatus(sub.getStatus().toString());
+            dto.setIsPremiumPaid(sub.isPaid());
+
+            // Check for claims
+            Optional<Claim> claim = claimsRepository.findByPolicySubscription_SubscriptionId(sub.getSubscriptionId());
+            if (claim.isPresent()) {
+                dto.setHasClaim(true);
+                dto.setClaimStatus(claim.get().getStatus().toString());
+            } else {
+                dto.setHasClaim(false);
+            }
+        } else {
+            dto.setStatus("NO_SUBSCRIPTION");
+            dto.setIsPremiumPaid(false);
+            dto.setHasClaim(false);
+        }
+
+        return dto;
+    }
+
     // Admin method to get all events
     public List<EventResponse> getAllEventsForAdmin() {
         List<Event> events = eventRepository.findAll();
         return events.stream()
-                .map(this::convertToResponse)
+                .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     private EventResponse convertToResponse(Event event) {
-        EventResponse response = new EventResponse();
-        response.setEventId(event.getEventId());
-        response.setEventName(event.getEventName());
-        response.setEventType(event.getEventType());
-        response.setCustomerName(event.getUser().getFullName());
-        response.setLocation(event.getLocation());
-        response.setEventDate(event.getEventDate());
-        response.setBudget(event.getBudget());
-        response.setNumberOfAttendees(event.getNumberOfAttendees());
-        response.setDurationInDays(event.getDurationInDays());
-        return response;
+        return convertToDTO(event);
     }
 }
 

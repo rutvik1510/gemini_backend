@@ -8,6 +8,7 @@ public class ClaimResponse {
 
     // Claim info
     private Long claimId;
+    private Long subscriptionId;
     private Double claimAmount;
     private String description;
     private String status;
@@ -52,6 +53,14 @@ public class ClaimResponse {
 
     public void setClaimId(Long claimId) {
         this.claimId = claimId;
+    }
+
+    public Long getSubscriptionId() {
+        return subscriptionId;
+    }
+
+    public void setSubscriptionId(Long subscriptionId) {
+        this.subscriptionId = subscriptionId;
     }
 
     public Double getClaimAmount() {

@@ -39,7 +39,10 @@ public class PolicySubscription {
 
     private Double premiumAmount;
 
+    private Boolean isPaid = false;
+
     @Enumerated(EnumType.STRING)
+    @Column(name = "status", columnDefinition = "VARCHAR(255)")
     private SubscriptionStatus status;
 
     private LocalDateTime requestedAt;
@@ -147,6 +150,14 @@ public class PolicySubscription {
 
     public void setPremiumAmount(Double premiumAmount) {
         this.premiumAmount = premiumAmount;
+    }
+
+    public Boolean isPaid() {
+        return isPaid != null && isPaid;
+    }
+
+    public void setPaid(Boolean paid) {
+        isPaid = paid;
     }
 
     public SubscriptionStatus getStatus() {

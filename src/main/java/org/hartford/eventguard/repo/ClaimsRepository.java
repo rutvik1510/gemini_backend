@@ -16,4 +16,6 @@ public interface ClaimsRepository extends JpaRepository<Claim, Long> {
 
     // Check if claim already exists for subscription
     boolean existsByPolicySubscription_SubscriptionId(Long subscriptionId);
+
+    java.util.Optional<Claim> findByPolicySubscription_SubscriptionId(Long subscriptionId);
 }

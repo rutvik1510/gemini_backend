@@ -38,4 +38,13 @@ public class ClaimController {
         List<ClaimResponse> claims = claimService.getCustomerClaimsResponse(email);
         return ResponseEntity.ok(ApiResponse.success("Claims retrieved successfully", claims));
     }
+
+    @PutMapping("/{id}/collect")
+    public ResponseEntity<ApiResponse<ClaimResponse>> collectClaim(
+            @PathVariable Long id,
+            Authentication authentication) {
+        String email = authentication.getName();
+        ClaimResponse response = claimService.collectClaim(id, email);
+        return ResponseEntity.ok(ApiResponse.success("Claim payment collected successfully", response));
+    }
 }
