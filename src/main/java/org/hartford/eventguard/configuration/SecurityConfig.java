@@ -76,10 +76,10 @@ public class SecurityConfig {
                         .hasAnyRole("CLAIMS_OFFICER", "ADMIN")
 
                         // Customer endpoints
-                        .requestMatchers("/events/**").hasAnyRole("CUSTOMER", "ADMIN")
-                        .requestMatchers("/subscriptions/**").hasAnyRole("CUSTOMER", "ADMIN")
-                        .requestMatchers("/claims/**").hasAnyRole("CUSTOMER", "ADMIN")
-                        .requestMatchers("/policies/**").hasAnyRole("CUSTOMER", "ADMIN")
+                        .requestMatchers("/events", "/events/**").hasAnyRole("CUSTOMER", "ADMIN")
+                        .requestMatchers("/subscriptions", "/subscriptions/**").hasAnyRole("CUSTOMER", "ADMIN")
+                        .requestMatchers("/claims", "/claims/**").hasAnyRole("CUSTOMER", "ADMIN")
+                        .requestMatchers("/policies", "/policies/**").hasAnyRole("CUSTOMER", "ADMIN")
 
                         .anyRequest().authenticated()
                 )
