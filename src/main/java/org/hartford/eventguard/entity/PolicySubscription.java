@@ -39,6 +39,9 @@ public class PolicySubscription {
 
     private Double premiumAmount;
 
+    private Double premiumOverrideAmount;
+    private String overrideReason;
+
     private Boolean isPaid = false;
 
     @Enumerated(EnumType.STRING)
@@ -152,6 +155,22 @@ public class PolicySubscription {
 
     public void setPremiumAmount(Double premiumAmount) {
         this.premiumAmount = premiumAmount;
+    }
+
+    public Double getPremiumOverrideAmount() {
+        return premiumOverrideAmount;
+    }
+
+    public void setPremiumOverrideAmount(Double premiumOverrideAmount) {
+        this.premiumOverrideAmount = premiumOverrideAmount;
+    }
+
+    public String getOverrideReason() {
+        return overrideReason;
+    }
+
+    public void setOverrideReason(String overrideReason) {
+        this.overrideReason = overrideReason;
     }
 
     public Boolean isPaid() {

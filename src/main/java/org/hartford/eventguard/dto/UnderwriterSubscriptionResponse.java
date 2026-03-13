@@ -38,6 +38,9 @@ public class UnderwriterSubscriptionResponse {
     private Double premiumAmount;
     private String status;
     private String rejectionReason;
+    private Double premiumOverrideAmount;
+    private String overrideReason;
+    private String safetyComplianceDocPath;
 
     // Objective Security & Safety fields
     private Boolean hasProfessionalSecurity;
@@ -55,6 +58,30 @@ public class UnderwriterSubscriptionResponse {
 
     public void setRejectionReason(String rejectionReason) {
         this.rejectionReason = rejectionReason;
+    }
+
+    public Double getPremiumOverrideAmount() {
+        return premiumOverrideAmount;
+    }
+
+    public void setPremiumOverrideAmount(Double premiumOverrideAmount) {
+        this.premiumOverrideAmount = premiumOverrideAmount;
+    }
+
+    public String getOverrideReason() {
+        return overrideReason;
+    }
+
+    public void setOverrideReason(String overrideReason) {
+        this.overrideReason = overrideReason;
+    }
+
+    public String getSafetyComplianceDocPath() {
+        return safetyComplianceDocPath;
+    }
+
+    public void setSafetyComplianceDocPath(String safetyComplianceDocPath) {
+        this.safetyComplianceDocPath = safetyComplianceDocPath;
     }
 
     public Boolean getHasProfessionalSecurity() {

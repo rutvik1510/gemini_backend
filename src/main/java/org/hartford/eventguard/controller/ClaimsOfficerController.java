@@ -1,6 +1,7 @@
 package org.hartford.eventguard.controller;
 
 import org.hartford.eventguard.dto.ApiResponse;
+import org.hartford.eventguard.dto.ApproveClaimRequest;
 import org.hartford.eventguard.dto.ClaimResponse;
 import org.hartford.eventguard.service.ClaimService;
 import org.springframework.http.ResponseEntity;
@@ -37,10 +38,12 @@ public class ClaimsOfficerController {
     @PutMapping("/{id}/approve")
     public ResponseEntity<ApiResponse<String>> approveClaim(
             @PathVariable Long id,
+            @RequestBody(required = false) ApproveClaimRequest request,
             Authentication authentication) {
 
         String email = authentication.getName();
-        claimService.approveClaim(id, email);
+        Double payout = (request != null) ? request.getApprovedAmount() : null;
+        claimService.approveClaim(id, email, payout);
         return ResponseEntity.ok(ApiResponse.success("Claim approved"));
     }
 

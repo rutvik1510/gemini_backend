@@ -5,6 +5,7 @@ public class ClaimRequest {
     private Long subscriptionId;
     private String description;
     private Double claimAmount;
+    private String evidenceDocPath;
 
     public ClaimRequest() {}
 
@@ -30,5 +31,13 @@ public class ClaimRequest {
 
     public void setClaimAmount(Double claimAmount) {
         this.claimAmount = claimAmount;
+    }
+
+    public String getEvidenceDocPath() {
+        return evidenceDocPath;
+    }
+
+    public void setEvidenceDocPath(String evidenceDocPath) {
+        this.evidenceDocPath = evidenceDocPath;
     }
 }

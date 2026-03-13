@@ -119,7 +119,7 @@ public class ClaimService {
         return claimsRepository.findAll();
     }
 
-    public ClaimResponseDTO approveClaim(Long id, String email) {
+    public ClaimResponseDTO approveClaim(Long id, String email, Double approvedAmount) {
         // Fetch claim
         Claim claim = claimsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Claim not found"));
@@ -132,6 +132,12 @@ public class ClaimService {
         claim.setStatus(ClaimStatus.APPROVED);
         claim.setResolvedAt(LocalDateTime.now());
         claim.setResolvedBy(user);
+        
+        if (approvedAmount != null) {
+            claim.setApprovedAmount(approvedAmount);
+        } else {
+            claim.setApprovedAmount(claim.getClaimAmount());
+        }
 
         claimsRepository.save(claim);
 
@@ -189,8 +195,10 @@ public class ClaimService {
         ClaimResponseDTO dto = new ClaimResponseDTO();
         dto.setClaimId(claim.getClaimId());
         dto.setSubscriptionId(claim.getPolicySubscription().getSubscriptionId());
-        dto.setDescription(claim.getDescription());
         dto.setClaimAmount(claim.getClaimAmount());
+        dto.setApprovedAmount(claim.getApprovedAmount());
+        dto.setEvidenceDocPath(claim.getEvidenceDocPath());
+        dto.setDescription(claim.getDescription());
         dto.setStatus(claim.getStatus().toString());
         dto.setResolvedBy(claim.getResolvedBy() != null ? claim.getResolvedBy().getFullName() : null);
         dto.setFiledAt(claim.getFiledAt());
@@ -231,6 +239,8 @@ public class ClaimService {
         dto.setClaimId(claim.getClaimId());
         dto.setSubscriptionId(claim.getPolicySubscription().getSubscriptionId());
         dto.setClaimAmount(claim.getClaimAmount());
+        dto.setApprovedAmount(claim.getApprovedAmount());
+        dto.setEvidenceDocPath(claim.getEvidenceDocPath());
         dto.setDescription(claim.getDescription());
         dto.setStatus(claim.getStatus().toString());
         dto.setFiledAt(claim.getFiledAt());

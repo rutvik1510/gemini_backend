@@ -61,6 +61,7 @@ public class EventService {
         event.setHasMetalDetectors(request.getHasMetalDetectors());
         event.setHasFireNOC(request.getHasFireNOC());
         event.setHasOnSiteFireSafety(request.getHasOnSiteFireSafety());
+        event.setSafetyComplianceDocPath(request.getSafetyComplianceDocPath());
 
         // Calculate Risk Levels
         event.setSecurityLevel(calculateSecurityLevel(request));
@@ -157,6 +158,7 @@ public class EventService {
         event.setHasMetalDetectors(request.getHasMetalDetectors());
         event.setHasFireNOC(request.getHasFireNOC());
         event.setHasOnSiteFireSafety(request.getHasOnSiteFireSafety());
+        event.setSafetyComplianceDocPath(request.getSafetyComplianceDocPath());
 
         // Calculate Risk Levels
         event.setSecurityLevel(calculateSecurityLevel(request));
@@ -237,6 +239,7 @@ public class EventService {
         event.setHasMetalDetectors(request.getHasMetalDetectors());
         event.setHasFireNOC(request.getHasFireNOC());
         event.setHasOnSiteFireSafety(request.getHasOnSiteFireSafety());
+        event.setSafetyComplianceDocPath(request.getSafetyComplianceDocPath());
 
         // Calculate Risk Levels
         event.setSecurityLevel(calculateSecurityLevel(request));
@@ -292,6 +295,7 @@ public class EventService {
         event.setHasMetalDetectors(request.getHasMetalDetectors());
         event.setHasFireNOC(request.getHasFireNOC());
         event.setHasOnSiteFireSafety(request.getHasOnSiteFireSafety());
+        event.setSafetyComplianceDocPath(request.getSafetyComplianceDocPath());
 
         // Calculate Risk Levels
         event.setSecurityLevel(calculateSecurityLevel(request));

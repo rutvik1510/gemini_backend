@@ -21,6 +21,9 @@ public class Claim {
 
     private Double claimAmount;
 
+    private Double approvedAmount;
+    private String evidenceDocPath;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", columnDefinition = "VARCHAR(255)")
     private ClaimStatus status;
@@ -65,6 +68,22 @@ public class Claim {
 
     public void setClaimAmount(Double claimAmount) {
         this.claimAmount = claimAmount;
+    }
+
+    public Double getApprovedAmount() {
+        return approvedAmount;
+    }
+
+    public void setApprovedAmount(Double approvedAmount) {
+        this.approvedAmount = approvedAmount;
+    }
+
+    public String getEvidenceDocPath() {
+        return evidenceDocPath;
+    }
+
+    public void setEvidenceDocPath(String evidenceDocPath) {
+        this.evidenceDocPath = evidenceDocPath;
     }
 
     public ClaimStatus getStatus() {

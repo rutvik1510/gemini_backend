@@ -26,6 +26,7 @@ public class MusicEventRequest {
     private Boolean hasMetalDetectors;
     private Boolean hasFireNOC;
     private Boolean hasOnSiteFireSafety;
+    private String safetyComplianceDocPath;
 
     public MusicEventRequest() {
     }
@@ -165,5 +166,13 @@ public class MusicEventRequest {
 
     public void setHasOnSiteFireSafety(Boolean hasOnSiteFireSafety) {
         this.hasOnSiteFireSafety = hasOnSiteFireSafety;
+    }
+
+    public String getSafetyComplianceDocPath() {
+        return safetyComplianceDocPath;
+    }
+
+    public void setSafetyComplianceDocPath(String safetyComplianceDocPath) {
+        this.safetyComplianceDocPath = safetyComplianceDocPath;
     }
 }

@@ -46,6 +46,8 @@ public class Event {
     private Boolean hasFireNOC;
     private Boolean hasOnSiteFireSafety;
 
+    private String safetyComplianceDocPath;
+
     // ---------------- MUSIC CONCERT SPECIFIC FIELDS ----------------
 
     private Boolean isOutdoor;
@@ -278,6 +280,14 @@ public class Event {
 
     public void setHasOnSiteFireSafety(Boolean hasOnSiteFireSafety) {
         this.hasOnSiteFireSafety = hasOnSiteFireSafety;
+    }
+
+    public String getSafetyComplianceDocPath() {
+        return safetyComplianceDocPath;
+    }
+
+    public void setSafetyComplianceDocPath(String safetyComplianceDocPath) {
+        this.safetyComplianceDocPath = safetyComplianceDocPath;
     }
 
     public User getUser() {

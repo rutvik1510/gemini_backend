@@ -10,6 +10,8 @@ public class ClaimResponse {
     private Long claimId;
     private Long subscriptionId;
     private Double claimAmount;
+    private Double approvedAmount;
+    private String evidenceDocPath;
     private String description;
     private String status;
     private LocalDateTime filedAt;
@@ -69,6 +71,22 @@ public class ClaimResponse {
 
     public void setClaimAmount(Double claimAmount) {
         this.claimAmount = claimAmount;
+    }
+
+    public Double getApprovedAmount() {
+        return approvedAmount;
+    }
+
+    public void setApprovedAmount(Double approvedAmount) {
+        this.approvedAmount = approvedAmount;
+    }
+
+    public String getEvidenceDocPath() {
+        return evidenceDocPath;
+    }
+
+    public void setEvidenceDocPath(String evidenceDocPath) {
+        this.evidenceDocPath = evidenceDocPath;
     }
 
     public String getDescription() {

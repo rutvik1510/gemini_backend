@@ -141,7 +141,7 @@ public class PolicySubscriptionService {
         return subscriptionRepository.findAll();
     }
 
-    public SubscriptionResponseDTO approveSubscription(Long id, String email) {
+    public SubscriptionResponseDTO approveSubscription(Long id, String email, Double overrideAmount, String reason) {
         // Fetch subscription
         PolicySubscription subscription = subscriptionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Subscription not found"));
@@ -154,6 +154,13 @@ public class PolicySubscriptionService {
         subscription.setStatus(SubscriptionStatus.APPROVED);
         subscription.setApprovedAt(LocalDateTime.now());
         subscription.setApprovedBy(user);
+        
+        if (overrideAmount != null) {
+            subscription.setPremiumOverrideAmount(overrideAmount);
+            subscription.setOverrideReason(reason);
+            // The actual premium paid will be the override amount if present
+            subscription.setPremiumAmount(overrideAmount);
+        }
 
         subscriptionRepository.save(subscription);
 
@@ -441,6 +448,9 @@ public class PolicySubscriptionService {
         dto.setPremiumAmount(subscription.getPremiumAmount());
         dto.setStatus(subscription.getStatus().toString());
         dto.setRejectionReason(subscription.getRejectionReason());
+        dto.setPremiumOverrideAmount(subscription.getPremiumOverrideAmount());
+        dto.setOverrideReason(subscription.getOverrideReason());
+        dto.setSafetyComplianceDocPath(event.getSafetyComplianceDocPath());
 
         // Objective Security & Safety fields
         dto.setHasProfessionalSecurity(event.getHasProfessionalSecurity());

@@ -26,6 +26,7 @@ public class CorporateEventRequest {
     private Boolean hasMetalDetectors;
     private Boolean hasFireNOC;
     private Boolean hasOnSiteFireSafety;
+    private String safetyComplianceDocPath;
 
     public CorporateEventRequest() {
     }
@@ -149,5 +150,13 @@ public class CorporateEventRequest {
 
     public void setHasOnSiteFireSafety(Boolean hasOnSiteFireSafety) {
         this.hasOnSiteFireSafety = hasOnSiteFireSafety;
+    }
+
+    public String getSafetyComplianceDocPath() {
+        return safetyComplianceDocPath;
+    }
+
+    public void setSafetyComplianceDocPath(String safetyComplianceDocPath) {
+        this.safetyComplianceDocPath = safetyComplianceDocPath;
     }
 }
