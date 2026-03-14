@@ -20,6 +20,7 @@ public class UnderwriterSubscriptionResponse {
     private String policyDescription;
     private Double baseRate;
     private Double maxCoverageAmount;
+    private Double riskPercentage;
 
     // Risk breakdown
     private Double eventRisk;
@@ -41,6 +42,7 @@ public class UnderwriterSubscriptionResponse {
     private Double premiumOverrideAmount;
     private String overrideReason;
     private String safetyComplianceDocPath;
+    private String assignedUnderwriterName;
 
     // Objective Security & Safety fields
     private Boolean hasProfessionalSecurity;
@@ -50,6 +52,14 @@ public class UnderwriterSubscriptionResponse {
     private Boolean hasOnSiteFireSafety;
 
     public UnderwriterSubscriptionResponse() {
+    }
+
+    public String getAssignedUnderwriterName() {
+        return assignedUnderwriterName;
+    }
+
+    public void setAssignedUnderwriterName(String assignedUnderwriterName) {
+        this.assignedUnderwriterName = assignedUnderwriterName;
     }
 
     public String getRejectionReason() {
@@ -218,6 +228,14 @@ public class UnderwriterSubscriptionResponse {
 
     public void setMaxCoverageAmount(Double maxCoverageAmount) {
         this.maxCoverageAmount = maxCoverageAmount;
+    }
+
+    public Double getRiskPercentage() {
+        return riskPercentage;
+    }
+
+    public void setRiskPercentage(Double riskPercentage) {
+        this.riskPercentage = riskPercentage;
     }
 
     public Double getEventRisk() {

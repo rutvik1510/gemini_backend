@@ -9,6 +9,7 @@ public class UnderwriterSubscriptionDetailsResponse {
     private String eventName;
     private String eventType;
     private String customerName;
+    private String customerPhone;
     private String policyName;
     private String policyDescription;
     private Double baseRate;
@@ -16,7 +17,9 @@ public class UnderwriterSubscriptionDetailsResponse {
     private Double premiumAmount;
     private Double riskPercentage;
     private String riskLevel;
+    private String riskFactors;
     private String status;
+    private String assignedUnderwriterName;
 
     // Event details
     private String location;
@@ -47,6 +50,14 @@ public class UnderwriterSubscriptionDetailsResponse {
     private Double eventRisk;
     private Double weatherRisk;
     private Double totalRisk;
+
+    // Safety & Compliance
+    private Boolean hasProfessionalSecurity;
+    private Boolean hasCCTV;
+    private Boolean hasMetalDetectors;
+    private Boolean hasFireNOC;
+    private Boolean hasOnSiteFireSafety;
+    private String safetyComplianceDocPath;
 
     public UnderwriterSubscriptionDetailsResponse() {
     }
@@ -82,6 +93,14 @@ public class UnderwriterSubscriptionDetailsResponse {
 
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+
+    public String getCustomerPhone() {
+        return customerPhone;
+    }
+
+    public void setCustomerPhone(String customerPhone) {
+        this.customerPhone = customerPhone;
     }
 
     public String getPolicyName() {
@@ -140,12 +159,28 @@ public class UnderwriterSubscriptionDetailsResponse {
         this.riskLevel = riskLevel;
     }
 
+    public String getRiskFactors() {
+        return riskFactors;
+    }
+
+    public void setRiskFactors(String riskFactors) {
+        this.riskFactors = riskFactors;
+    }
+
     public String getStatus() {
         return status;
     }
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getAssignedUnderwriterName() {
+        return assignedUnderwriterName;
+    }
+
+    public void setAssignedUnderwriterName(String assignedUnderwriterName) {
+        this.assignedUnderwriterName = assignedUnderwriterName;
     }
 
     // Event details getters/setters
@@ -325,5 +360,53 @@ public class UnderwriterSubscriptionDetailsResponse {
 
     public void setTotalRisk(Double totalRisk) {
         this.totalRisk = totalRisk;
+    }
+
+    public Boolean getHasProfessionalSecurity() {
+        return hasProfessionalSecurity;
+    }
+
+    public void setHasProfessionalSecurity(Boolean hasProfessionalSecurity) {
+        this.hasProfessionalSecurity = hasProfessionalSecurity;
+    }
+
+    public Boolean getHasCCTV() {
+        return hasCCTV;
+    }
+
+    public void setHasCCTV(Boolean hasCCTV) {
+        this.hasCCTV = hasCCTV;
+    }
+
+    public Boolean getHasMetalDetectors() {
+        return hasMetalDetectors;
+    }
+
+    public void setHasMetalDetectors(Boolean hasMetalDetectors) {
+        this.hasMetalDetectors = hasMetalDetectors;
+    }
+
+    public Boolean getHasFireNOC() {
+        return hasFireNOC;
+    }
+
+    public void setHasFireNOC(Boolean hasFireNOC) {
+        this.hasFireNOC = hasFireNOC;
+    }
+
+    public Boolean getHasOnSiteFireSafety() {
+        return hasOnSiteFireSafety;
+    }
+
+    public void setHasOnSiteFireSafety(Boolean hasOnSiteFireSafety) {
+        this.hasOnSiteFireSafety = hasOnSiteFireSafety;
+    }
+
+    public String getSafetyComplianceDocPath() {
+        return safetyComplianceDocPath;
+    }
+
+    public void setSafetyComplianceDocPath(String safetyComplianceDocPath) {
+        this.safetyComplianceDocPath = safetyComplianceDocPath;
     }
 }

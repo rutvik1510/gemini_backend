@@ -10,7 +10,6 @@ public class PolicyResponse {
     private EventDomain domain;
     private Double baseRate;
     private Double maxCoverageAmount;
-    private Double deductible;
     private Boolean coversTheft;
     private Boolean coversWeather;
     private Boolean coversFire;
@@ -18,14 +17,6 @@ public class PolicyResponse {
     private Boolean isActive;
 
     public PolicyResponse() {
-    }
-
-    public Double getDeductible() {
-        return deductible;
-    }
-
-    public void setDeductible(Double deductible) {
-        this.deductible = deductible;
     }
 
     public Boolean getCoversTheft() {

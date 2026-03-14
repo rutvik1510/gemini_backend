@@ -5,9 +5,8 @@ import org.hartford.eventguard.dto.ApiResponse;
 import org.hartford.eventguard.service.ClaimService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.hartford.eventguard.dto.ClaimResponseDTO;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,5 +25,13 @@ public class AdminClaimsController {
     public ResponseEntity<ApiResponse<List<AdminClaimResponse>>> getAllClaims() {
         List<AdminClaimResponse> claims = claimService.getAllClaimsForAdmin();
         return ResponseEntity.ok(ApiResponse.success("Claims retrieved successfully", claims));
+    }
+
+    @PostMapping("/{id}/assign/{officerId}")
+    public ResponseEntity<ApiResponse<ClaimResponseDTO>> assignClaimsOfficer(
+            @PathVariable Long id,
+            @PathVariable Long officerId) {
+        ClaimResponseDTO response = claimService.assignClaimsOfficer(id, officerId);
+        return ResponseEntity.ok(ApiResponse.success("Claims Officer assigned successfully", response));
     }
 }

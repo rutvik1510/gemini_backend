@@ -10,10 +10,46 @@ public class AdminSubscriptionResponse {
     private String policyName;
     private Double premiumAmount;
     private Double riskPercentage;
+    private Double eventRisk;
+    private Double weatherRisk;
+    private String riskLevel;
     private String status;
     private LocalDateTime requestedAt;
+    private String assignedUnderwriterName;
 
     public AdminSubscriptionResponse() {
+    }
+
+    public Double getEventRisk() {
+        return eventRisk;
+    }
+
+    public void setEventRisk(Double eventRisk) {
+        this.eventRisk = eventRisk;
+    }
+
+    public Double getWeatherRisk() {
+        return weatherRisk;
+    }
+
+    public void setWeatherRisk(Double weatherRisk) {
+        this.weatherRisk = weatherRisk;
+    }
+
+    public String getRiskLevel() {
+        return riskLevel;
+    }
+
+    public void setRiskLevel(String riskLevel) {
+        this.riskLevel = riskLevel;
+    }
+
+    public String getAssignedUnderwriterName() {
+        return assignedUnderwriterName;
+    }
+
+    public void setAssignedUnderwriterName(String assignedUnderwriterName) {
+        this.assignedUnderwriterName = assignedUnderwriterName;
     }
 
     public Long getSubscriptionId() {

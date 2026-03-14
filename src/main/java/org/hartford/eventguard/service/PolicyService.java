@@ -25,7 +25,6 @@ public class PolicyService {
         policy.setDomain(request.getDomain());
         policy.setBaseRate(request.getBaseRate());
         policy.setMaxCoverageAmount(request.getMaxCoverageAmount());
-        policy.setDeductible(request.getDeductible());
         policy.setCoversTheft(request.getCoversTheft());
         policy.setCoversWeather(request.getCoversWeather());
         policy.setCoversFire(request.getCoversFire());
@@ -41,7 +40,6 @@ public class PolicyService {
         policy.setDomain(request.getDomain());
         policy.setBaseRate(request.getBaseRate());
         policy.setMaxCoverageAmount(request.getMaxCoverageAmount());
-        policy.setDeductible(request.getDeductible());
         policy.setCoversTheft(request.getCoversTheft());
         policy.setCoversWeather(request.getCoversWeather());
         policy.setCoversFire(request.getCoversFire());
@@ -71,7 +69,6 @@ public class PolicyService {
         policy.setDomain(request.getDomain());
         policy.setBaseRate(request.getBaseRate());
         policy.setMaxCoverageAmount(request.getMaxCoverageAmount());
-        policy.setDeductible(request.getDeductible());
         policy.setCoversTheft(request.getCoversTheft());
         policy.setCoversWeather(request.getCoversWeather());
         policy.setCoversFire(request.getCoversFire());
@@ -126,7 +123,6 @@ public class PolicyService {
         dto.setDomain(policy.getDomain());
         dto.setBaseRate(policy.getBaseRate());
         dto.setMaxCoverageAmount(policy.getMaxCoverageAmount());
-        dto.setDeductible(policy.getDeductible());
         dto.setCoversTheft(policy.getCoversTheft());
         dto.setCoversWeather(policy.getCoversWeather());
         dto.setCoversFire(policy.getCoversFire());

@@ -18,10 +18,13 @@ public class JwtUtil {
 
     private final long EXPIRATION_TIME = 1000 * 60 * 60; // 1 hour
 
-    // Generate Token with Role
-    public String generateToken(String username, String role) {
+    // Generate Token with Roles and Name
+    public String generateToken(String username, java.util.List<String> roles, String fullName) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", role);
+        // Use both 'role' (single) and 'roles' (list) for maximum compatibility
+        claims.put("role", roles.isEmpty() ? "" : roles.get(0));
+        claims.put("roles", roles);
+        claims.put("fullName", fullName);
 
         return Jwts.builder()
                 .setClaims(claims)

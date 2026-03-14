@@ -35,20 +35,19 @@ public class WeatherRiskService {
 
     @Cacheable(value = "weatherCache", key = "#location + '-' + #eventDate")
     public WeatherRiskResponse getWeatherRisk(String location, LocalDate eventDate) {
-        logger.info("========================================");
-        logger.info("WEATHER RISK CALCULATION STARTED");
-        logger.info("Location: {}", location);
-        logger.info("Event Date: {}", eventDate);
-        logger.info("========================================");
+        System.out.println("\n┌──────────────────────────────────────────────────────────┐");
+        System.out.println("│        LIVE WEATHER RISK ANALYSIS MODULE                 │");
+        System.out.println("├──────────────────────────────────────────────────────────┤");
+        System.out.println("  Location   : " + location);
+        System.out.println("  Event Date : " + eventDate);
+        System.out.println("├──────────────────────────────────────────────────────────┤");
 
         WeatherRiskResponse response = new WeatherRiskResponse();
 
         try {
             // Call WeatherAPI.com
             String url = weatherApiUrl + "?key=" + apiKey + "&q=" + location;
-
-            logger.info("Calling WeatherAPI.com for location: {}", location);
-            logger.info("API URL: {}", weatherApiUrl);
+            System.out.println("  [~] Connecting to WeatherAPI.com...");
 
             ResponseEntity<String> apiResponse = restTemplate.getForEntity(url, String.class);
 
@@ -66,28 +65,21 @@ public class WeatherRiskService {
                 response.setWindSpeed(windSpeed);
                 response.setRainProbability(humidity); // Using humidity as proxy
 
-                logger.info("========================================");
-                logger.info("WEATHER DATA RETRIEVED:");
-                logger.info("  → Temperature: {}°C", String.format("%.1f", temperature));
-                logger.info("  → Wind Speed: {} km/h", String.format("%.1f", windSpeed));
-                logger.info("  → Humidity: {}%", String.format("%.1f", humidity));
-                logger.info("  → Precipitation: {} mm", String.format("%.1f", precipitation));
-                logger.info("========================================");
+                System.out.println("  [✓] LIVE DATA RETRIEVED:");
+                System.out.println("      → Temperature : " + String.format("%.1f", temperature) + "°C");
+                System.out.println("      → Wind Speed  : " + String.format("%.1f", windSpeed) + " km/h");
+                System.out.println("      → Humidity    : " + String.format("%.1f", humidity) + "%");
+                System.out.println("      → Precip.     : " + String.format("%.1f", precipitation) + " mm");
+                System.out.println("├──────────────────────────────────────────────────────────┤");
 
                 // Calculate weather risk using new rules
                 WeatherRiskResult riskResult = calculateWeatherRisk(temperature, windSpeed, humidity, precipitation);
                 response.setWeatherRiskScore(riskResult.getWeatherRiskScore());
-
-                logger.info("WEATHER RISK CALCULATED: {}%", String.format("%.2f", riskResult.getWeatherRiskScore()));
-                logger.info("========================================");
             }
 
         } catch (Exception e) {
-            logger.error("========================================");
-            logger.error("ERROR FETCHING WEATHER DATA");
-            logger.error("Error message: {}", e.getMessage());
-            logger.error("Using default weather values");
-            logger.error("========================================");
+            System.out.println("  [!] ERROR FETCHING WEATHER DATA: " + e.getMessage());
+            System.out.println("  [!] Using safe default risk values.");
 
             // Return default values if API call fails
             response.setTemperature(20.0);
@@ -157,42 +149,39 @@ public class WeatherRiskService {
                                                    Double humidity, Double precipitation) {
         double risk = 0.0;
 
-        logger.info("WEATHER RISK BREAKDOWN:");
+        System.out.println("  WEATHER FACTOR BREAKDOWN:");
 
-        // Temperature risk: > 35°C → +1 risk
+        // Temperature risk: > 45°C → +1 risk
         if (temperature > 45) {
             risk += 1.0;
-            logger.info("  ✓ Temperature Risk: +1.0% (Temperature: {}°C > 35°C)", String.format("%.1f", temperature));
-        } else {
-            logger.info("  ✗ Temperature Risk: +0.0% (Temperature: {}°C ≤ 35°C)", String.format("%.1f", temperature));
+            System.out.println("    [+] Extreme Heat Alert      : +1.0% (> 45°C)");
         }
 
         // Wind risk: > 20 km/h → +1 risk
         if (windSpeed > 20) {
             risk += 1.0;
-            logger.info("  ✓ Wind Risk: +1.0% (Wind speed: {} km/h > 20 km/h)", String.format("%.1f", windSpeed));
-        } else {
-            logger.info("  ✗ Wind Risk: +0.0% (Wind speed: {} km/h ≤ 20 km/h)", String.format("%.1f", windSpeed));
+            System.out.println("    [+] High Wind Alert         : +1.0% (> 20 km/h)");
         }
 
         // Humidity risk: > 80% → +0.5 risk
         if (humidity > 80) {
             risk += 0.5;
-            logger.info("  ✓ Humidity Risk: +0.5% (Humidity: {}% > 80%)", String.format("%.1f", humidity));
-        } else {
-            logger.info("  ✗ Humidity Risk: +0.0% (Humidity: {}% ≤ 80%)", String.format("%.1f", humidity));
+            System.out.println("    [+] High Humidity Risk      : +0.5% (> 80%)");
         }
 
         // Precipitation risk: > 5 mm → +2 risk
         if (precipitation > 5) {
             risk += 2.0;
-            logger.info("  ✓ Precipitation Risk: +2.0% (Precipitation: {} mm > 5 mm)", String.format("%.1f", precipitation));
-        } else {
-            logger.info("  ✗ Precipitation Risk: +0.0% (Precipitation: {} mm ≤ 5 mm)", String.format("%.1f", precipitation));
+            System.out.println("    [+] Precipitation Alert     : +2.0% (> 5mm)");
         }
 
-        logger.info("────────────────────────────────────────");
-        logger.info("TOTAL WEATHER RISK: {}%", String.format("%.2f", risk));
+        if (risk == 0) {
+            System.out.println("    [✓] Weather Conditions      : Stable (0.0%)");
+        }
+
+        System.out.println("├──────────────────────────────────────────────────────────┤");
+        System.out.println("  TOTAL WEATHER RISK SCORE      : " + risk + "%");
+        System.out.println("└──────────────────────────────────────────────────────────┘");
 
         return new WeatherRiskResult(temperature, windSpeed, humidity, precipitation, risk);
     }

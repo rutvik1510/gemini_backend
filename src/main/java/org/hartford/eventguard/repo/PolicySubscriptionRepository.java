@@ -14,6 +14,8 @@ public interface PolicySubscriptionRepository extends JpaRepository<PolicySubscr
 
     List<PolicySubscription> findByEvent_User(User user);
 
+    List<PolicySubscription> findByAssignedUnderwriter(User user);
+
     // Count subscriptions by status for dashboard stats
     long countByStatus(SubscriptionStatus status);
 

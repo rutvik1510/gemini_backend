@@ -24,6 +24,10 @@ public class Claim {
     private Double approvedAmount;
     private String evidenceDocPath;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_officer_id")
+    private User assignedOfficer;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", columnDefinition = "VARCHAR(255)")
     private ClaimStatus status;
@@ -84,6 +88,14 @@ public class Claim {
 
     public void setEvidenceDocPath(String evidenceDocPath) {
         this.evidenceDocPath = evidenceDocPath;
+    }
+
+    public User getAssignedOfficer() {
+        return assignedOfficer;
+    }
+
+    public void setAssignedOfficer(User assignedOfficer) {
+        this.assignedOfficer = assignedOfficer;
     }
 
     public ClaimStatus getStatus() {

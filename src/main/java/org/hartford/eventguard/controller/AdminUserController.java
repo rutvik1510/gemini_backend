@@ -53,4 +53,10 @@ public class AdminUserController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(message));
     }
+
+    @PutMapping("/users/{id}")
+    public ResponseEntity<ApiResponse<String>> updateUser(@PathVariable Long id, @RequestBody AdminCreateUserRequest request) {
+        String message = adminUserService.updateUser(id, request);
+        return ResponseEntity.ok(ApiResponse.success(message));
+    }
 }

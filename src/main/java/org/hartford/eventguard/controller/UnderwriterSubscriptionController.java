@@ -30,6 +30,14 @@ public class UnderwriterSubscriptionController {
         return ResponseEntity.ok(ApiResponse.success("Subscriptions retrieved successfully", subscriptions));
     }
 
+    @GetMapping("/assigned")
+    public ResponseEntity<ApiResponse<List<UnderwriterSubscriptionResponse>>> getAssignedSubscriptions(
+            Authentication authentication) {
+        String email = authentication.getName();
+        List<UnderwriterSubscriptionResponse> subscriptions = subscriptionService.getAssignedSubscriptionsForUnderwriter(email);
+        return ResponseEntity.ok(ApiResponse.success("Assigned subscriptions retrieved successfully", subscriptions));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UnderwriterSubscriptionDetailsResponse>> getSubscriptionDetails(
             @PathVariable Long id) {

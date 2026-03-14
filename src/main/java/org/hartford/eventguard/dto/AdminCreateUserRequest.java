@@ -5,8 +5,17 @@ public class AdminCreateUserRequest {
     private String fullName;
     private String email;
     private String password;
+    private String phone;
 
     public AdminCreateUserRequest() {
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getFullName() {

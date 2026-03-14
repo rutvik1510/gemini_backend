@@ -15,9 +15,11 @@ public class ClaimResponse {
     private String description;
     private String status;
     private LocalDateTime filedAt;
+    private String assignedOfficerName;
 
     // Customer info
     private String customerName;
+    private String customerPhone;
 
     // Event info
     private String eventName;
@@ -46,6 +48,14 @@ public class ClaimResponse {
     private String weatherCondition;
 
     public ClaimResponse() {
+    }
+
+    public String getAssignedOfficerName() {
+        return assignedOfficerName;
+    }
+
+    public void setAssignedOfficerName(String assignedOfficerName) {
+        this.assignedOfficerName = assignedOfficerName;
     }
 
     // Claim info getters/setters
@@ -120,6 +130,14 @@ public class ClaimResponse {
 
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+
+    public String getCustomerPhone() {
+        return customerPhone;
+    }
+
+    public void setCustomerPhone(String customerPhone) {
+        this.customerPhone = customerPhone;
     }
 
     // Event info getters/setters

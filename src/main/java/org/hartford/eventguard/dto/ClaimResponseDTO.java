@@ -12,6 +12,7 @@ public class ClaimResponseDTO {
     private String evidenceDocPath;
     private String status;
     private String resolvedBy;
+    private String assignedOfficerName;
     private LocalDateTime filedAt;
     private LocalDateTime resolvedAt;
 
@@ -80,6 +81,14 @@ public class ClaimResponseDTO {
 
     public void setResolvedBy(String resolvedBy) {
         this.resolvedBy = resolvedBy;
+    }
+
+    public String getAssignedOfficerName() {
+        return assignedOfficerName;
+    }
+
+    public void setAssignedOfficerName(String assignedOfficerName) {
+        this.assignedOfficerName = assignedOfficerName;
     }
 
     public LocalDateTime getFiledAt() {

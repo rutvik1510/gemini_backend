@@ -11,13 +11,15 @@ public interface ClaimsRepository extends JpaRepository<Claim, Long> {
 
     List<Claim> findByPolicySubscription_Event_User(User user);
 
+    List<Claim> findByAssignedOfficer(User user);
+
     // Count claims by status for dashboard stats
     long countByStatus(ClaimStatus status);
 
     // Check if claim already exists for subscription
     boolean existsByPolicySubscription_SubscriptionId(Long subscriptionId);
 
-    @org.springframework.data.jpa.repository.Query("SELECT SUM(c.claimAmount) FROM Claim c WHERE c.status IN ('APPROVED', 'COLLECTED')")
+    @org.springframework.data.jpa.repository.Query("SELECT SUM(c.approvedAmount) FROM Claim c WHERE c.status IN ('APPROVED', 'COLLECTED')")
     Double sumApprovedPayouts();
 
     java.util.Optional<Claim> findByPolicySubscription_SubscriptionId(Long subscriptionId);

@@ -29,6 +29,13 @@ public class ClaimsOfficerController {
         return ResponseEntity.ok(ApiResponse.success("Claims retrieved successfully", claims));
     }
 
+    @GetMapping("/assigned")
+    public ResponseEntity<ApiResponse<List<ClaimResponse>>> getAssignedClaims(Authentication authentication) {
+        String email = authentication.getName();
+        List<ClaimResponse> claims = claimService.getAssignedClaimsResponse(email);
+        return ResponseEntity.ok(ApiResponse.success("Assigned claims retrieved successfully", claims));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ClaimResponse>> getClaimDetails(@PathVariable Long id) {
         ClaimResponse claim = claimService.getClaimByIdDTO(id);

@@ -6,6 +6,7 @@ import org.hartford.eventguard.dto.LoginResponse;
 import org.hartford.eventguard.dto.RegisterRequest;
 import org.hartford.eventguard.entity.User;
 import org.hartford.eventguard.service.AuthService;
+import org.hartford.eventguard.service.NotificationService;
 import org.hartford.eventguard.util.JwtUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
+    @Autowired
+    private NotificationService notificationService;
+
     // 🔐 LOGIN
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody AuthRequest request) {
@@ -41,15 +45,22 @@ public class AuthController {
         // Fetch user to get role
         User user = authService.getUserByEmail(request.getEmail());
 
-        // Extract role name (get first role, users typically have one primary role)
-        String roleName = user.getRoles().stream()
-                .findFirst()
-                .map(role -> role.getRoleName())
-                .orElse("CUSTOMER"); // Default to CUSTOMER if no role found
+        // Notify user
+        notificationService.createNotification(user, "New login detected from: " + request.getEmail(), "INFO");
 
-        // Generate token with role
-        String token = jwtUtil.generateToken(request.getEmail(), roleName);
-        LoginResponse loginResponse = new LoginResponse(token, user.getFullName(), user.getEmail(), roleName);
+        // Extract all roles
+        java.util.List<String> roles = user.getRoles().stream()
+                .map(role -> role.getRoleName())
+                .collect(java.util.stream.Collectors.toList());
+        
+        if (roles.isEmpty()) roles.add("CUSTOMER");
+
+        // Primary role for backward compatibility in DTO
+        String primaryRole = roles.get(0);
+
+        // Generate token with roles and name
+        String token = jwtUtil.generateToken(request.getEmail(), roles, user.getFullName());
+        LoginResponse loginResponse = new LoginResponse(token, user.getFullName(), user.getEmail(), primaryRole);
 
         return ResponseEntity.ok(ApiResponse.success("Login successful", loginResponse));
     }
@@ -61,4 +72,3 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success(message));
     }
 }
-

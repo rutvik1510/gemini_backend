@@ -10,8 +10,17 @@ public class AdminClaimResponse {
     private Double claimAmount;
     private String status;
     private LocalDateTime filedAt;
+    private String assignedOfficerName;
 
     public AdminClaimResponse() {
+    }
+
+    public String getAssignedOfficerName() {
+        return assignedOfficerName;
+    }
+
+    public void setAssignedOfficerName(String assignedOfficerName) {
+        this.assignedOfficerName = assignedOfficerName;
     }
 
     public Long getClaimId() {

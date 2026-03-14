@@ -110,9 +110,13 @@ public class RiskCalculationService {
     }
 
     public DetailedRiskBreakdown calculateRiskWithBreakdown(Event event) {
-        // Calculate event-specific risk
+        System.out.println(">>> FULL RISK BREAKDOWN INITIATED: " + event.getEventName());
+        
+        // Calculate event-specific risk with factors
         RiskCalculationStrategy strategy = selectStrategy(event.getEventType());
-        double eventRisk = strategy.calculateRisk(event);
+        RiskCalculationStrategy.EventRiskResult eventResult = strategy.calculateDetailedRisk(event);
+        double eventRisk = eventResult.getScore();
+        java.util.List<String> factorList = new java.util.ArrayList<>(eventResult.getFactors());
 
         // Determine if event is outdoor
         boolean isOutdoorEvent = false;
@@ -131,14 +135,28 @@ public class RiskCalculationService {
         WeatherRiskResponse weatherData = null;
 
         if (isOutdoorEvent) {
+            System.out.println(">>> OUTDOOR EVENT DETECTED - CALCULATING WEATHER RISK");
             weatherData = weatherRiskService.getWeatherRisk(
                     event.getLocation(),
                     event.getEventDate()
             );
             weatherRisk = weatherData.getWeatherRiskScore();
+            
+            // Add weather factors manually based on logic in WeatherRiskService
+            if (weatherData.getTemperature() != null && weatherData.getTemperature() > 45) factorList.add("Extreme Heat (+1.0)");
+            if (weatherData.getWindSpeed() != null && weatherData.getWindSpeed() > 20) factorList.add("High Wind (+1.0)");
+            if (weatherData.getRainProbability() != null && weatherData.getRainProbability() > 80) factorList.add("High Humidity/Rain (+0.5)");
+        } else {
+            System.out.println(">>> INDOOR EVENT - WEATHER RISK BYPASSED (0.0%)");
         }
 
-        return new DetailedRiskBreakdown(eventRisk, weatherRisk, weatherData);
+        String riskFactors = String.join(", ", factorList);
+        
+        System.out.println("TOTAL COMBINED RISK: " + (eventRisk + weatherRisk) + "%");
+        System.out.println("FACTORS IDENTIFIED: " + riskFactors);
+        System.out.println(">>> RISK CALCULATION COMPLETE");
+
+        return new DetailedRiskBreakdown(eventRisk, weatherRisk, riskFactors, weatherData);
     }
 
     private RiskCalculationStrategy selectStrategy(EventDomain eventType) {

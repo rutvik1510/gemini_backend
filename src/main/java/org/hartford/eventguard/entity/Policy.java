@@ -28,8 +28,6 @@ public class Policy {
     @Column(nullable = false)
     private Double maxCoverageAmount;
 
-    private Double deductible; // Amount customer pays out of pocket
-
     // Benefit Flags
     private Boolean coversTheft = false;
     private Boolean coversWeather = false;
@@ -87,14 +85,6 @@ public class Policy {
 
     public void setMaxCoverageAmount(Double maxCoverageAmount) {
         this.maxCoverageAmount = maxCoverageAmount;
-    }
-
-    public Double getDeductible() {
-        return deductible;
-    }
-
-    public void setDeductible(Double deductible) {
-        this.deductible = deductible;
     }
 
     public Boolean getCoversTheft() {

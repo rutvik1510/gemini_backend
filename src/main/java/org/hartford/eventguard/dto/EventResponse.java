@@ -16,6 +16,7 @@ public class EventResponse {
     private Integer numberOfAttendees;
     private Integer durationInDays;
     private String status;
+    private Double premiumAmount;
     private Boolean isPremiumPaid;
     private Boolean hasClaim;
     private String claimStatus;
@@ -29,6 +30,14 @@ public class EventResponse {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Double getPremiumAmount() {
+        return premiumAmount;
+    }
+
+    public void setPremiumAmount(Double premiumAmount) {
+        this.premiumAmount = premiumAmount;
     }
 
     public Boolean getIsPremiumPaid() {

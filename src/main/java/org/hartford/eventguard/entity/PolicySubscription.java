@@ -50,6 +50,14 @@ public class PolicySubscription {
 
     private String rejectionReason;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_underwriter_id")
+    private User assignedUnderwriter;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "risk_id")
+    private Risk riskDetails;
+
     private LocalDateTime requestedAt;
 
     private LocalDateTime approvedAt;
@@ -195,6 +203,22 @@ public class PolicySubscription {
 
     public void setRejectionReason(String rejectionReason) {
         this.rejectionReason = rejectionReason;
+    }
+
+    public User getAssignedUnderwriter() {
+        return assignedUnderwriter;
+    }
+
+    public void setAssignedUnderwriter(User assignedUnderwriter) {
+        this.assignedUnderwriter = assignedUnderwriter;
+    }
+
+    public Risk getRiskDetails() {
+        return riskDetails;
+    }
+
+    public void setRiskDetails(Risk riskDetails) {
+        this.riskDetails = riskDetails;
     }
 
     public LocalDateTime getRequestedAt() {

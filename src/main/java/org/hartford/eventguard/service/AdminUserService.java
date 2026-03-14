@@ -41,6 +41,7 @@ public class AdminUserService {
         User user = new User();
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setActive(true);
         user.setRoles(new HashSet<>(Collections.singletonList(underwriterRole)));
@@ -64,6 +65,7 @@ public class AdminUserService {
         User user = new User();
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setActive(true);
         user.setRoles(new HashSet<>(Collections.singletonList(claimsOfficerRole)));
@@ -71,6 +73,22 @@ public class AdminUserService {
         userRepository.save(user);
 
         return "Claims Officer created successfully";
+    }
+
+    public String updateUser(Long userId, AdminCreateUserRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setFullName(request.getFullName());
+        user.setPhone(request.getPhone());
+        
+        // Only update password if provided
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        userRepository.save(user);
+        return "User updated successfully";
     }
 
     public List<AdminUserResponse> getUnderwriters() {

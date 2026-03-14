@@ -5,9 +5,8 @@ import org.hartford.eventguard.dto.AdminSubscriptionResponse;
 import org.hartford.eventguard.service.PolicySubscriptionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.hartford.eventguard.dto.SubscriptionResponseDTO;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,5 +25,13 @@ public class AdminSubscriptionController {
     public ResponseEntity<ApiResponse<List<AdminSubscriptionResponse>>> getAllSubscriptions() {
         List<AdminSubscriptionResponse> subscriptions = subscriptionService.getAllSubscriptionsForAdmin();
         return ResponseEntity.ok(ApiResponse.success("Subscriptions retrieved successfully", subscriptions));
+    }
+
+    @PostMapping("/{id}/assign/{underwriterId}")
+    public ResponseEntity<ApiResponse<SubscriptionResponseDTO>> assignUnderwriter(
+            @PathVariable Long id,
+            @PathVariable Long underwriterId) {
+        SubscriptionResponseDTO response = subscriptionService.assignUnderwriter(id, underwriterId);
+        return ResponseEntity.ok(ApiResponse.success("Underwriter assigned successfully", response));
     }
 }
