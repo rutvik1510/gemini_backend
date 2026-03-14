@@ -8,6 +8,7 @@ public class DashboardStatsResponse {
     private Long totalUsers;
     private Long pendingSubscriptions;
     private Long pendingClaims;
+    private Long successfulClaims;
     private Long settledClaims;
     private Double totalRevenue;
     private Double totalPayouts;
@@ -61,6 +62,14 @@ public class DashboardStatsResponse {
 
     public void setPendingClaims(Long pendingClaims) {
         this.pendingClaims = pendingClaims;
+    }
+
+    public Long getSuccessfulClaims() {
+        return successfulClaims;
+    }
+
+    public void setSuccessfulClaims(Long successfulClaims) {
+        this.successfulClaims = successfulClaims;
     }
 
     public Long getSettledClaims() {

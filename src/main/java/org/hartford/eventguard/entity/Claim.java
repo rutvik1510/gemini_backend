@@ -21,6 +21,8 @@ public class Claim {
 
     private Double claimAmount;
 
+    private java.time.LocalDate incidentDate;
+
     private Double approvedAmount;
     private String evidenceDocPath;
 
@@ -31,6 +33,8 @@ public class Claim {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", columnDefinition = "VARCHAR(255)")
     private ClaimStatus status;
+
+    private String rejectionReason;
 
     private LocalDateTime filedAt;
 
@@ -74,6 +78,14 @@ public class Claim {
         this.claimAmount = claimAmount;
     }
 
+    public java.time.LocalDate getIncidentDate() {
+        return incidentDate;
+    }
+
+    public void setIncidentDate(java.time.LocalDate incidentDate) {
+        this.incidentDate = incidentDate;
+    }
+
     public Double getApprovedAmount() {
         return approvedAmount;
     }
@@ -104,6 +116,14 @@ public class Claim {
 
     public void setStatus(ClaimStatus status) {
         this.status = status;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
 
     public LocalDateTime getFiledAt() {

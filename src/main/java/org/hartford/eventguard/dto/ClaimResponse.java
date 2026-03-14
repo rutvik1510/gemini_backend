@@ -10,10 +10,12 @@ public class ClaimResponse {
     private Long claimId;
     private Long subscriptionId;
     private Double claimAmount;
+    private LocalDate incidentDate;
     private Double approvedAmount;
     private String evidenceDocPath;
     private String description;
     private String status;
+    private String rejectionReason;
     private LocalDateTime filedAt;
     private String assignedOfficerName;
 
@@ -83,6 +85,14 @@ public class ClaimResponse {
         this.claimAmount = claimAmount;
     }
 
+    public LocalDate getIncidentDate() {
+        return incidentDate;
+    }
+
+    public void setIncidentDate(LocalDate incidentDate) {
+        this.incidentDate = incidentDate;
+    }
+
     public Double getApprovedAmount() {
         return approvedAmount;
     }
@@ -113,6 +123,14 @@ public class ClaimResponse {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
 
     public LocalDateTime getFiledAt() {

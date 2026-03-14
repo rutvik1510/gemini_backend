@@ -57,10 +57,12 @@ public class ClaimsOfficerController {
     @PutMapping("/{id}/reject")
     public ResponseEntity<ApiResponse<String>> rejectClaim(
             @PathVariable Long id,
+            @RequestBody(required = false) org.hartford.eventguard.dto.RejectRequest request,
             Authentication authentication) {
 
         String email = authentication.getName();
-        claimService.rejectClaim(id, email);
+        String reason = (request != null && request.getReason() != null) ? request.getReason() : "Claim criteria not met";
+        claimService.rejectClaim(id, email, reason);
         return ResponseEntity.ok(ApiResponse.success("Claim rejected"));
     }
 }

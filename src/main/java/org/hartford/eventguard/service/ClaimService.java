@@ -40,6 +40,27 @@ public class ClaimService {
         this.notificationService = notificationService;
     }
 
+    // --- Alias methods for Controller compatibility ---
+    public List<ClaimResponse> getCustomerClaimsResponse(String email) {
+        return getClaimsForCustomer(email);
+    }
+
+    public List<ClaimResponse> getAllClaimsResponse() {
+        List<Claim> claims = claimsRepository.findAll();
+        return claims.stream().map(this::convertToClaimResponse).collect(Collectors.toList());
+    }
+
+    public List<ClaimResponse> getAssignedClaimsResponse(String email) {
+        return getClaimsForOfficer(email);
+    }
+
+    public ClaimResponse getClaimByIdDTO(Long id) {
+        Claim claim = claimsRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Claim not found"));
+        return convertToClaimResponse(claim);
+    }
+    // --------------------------------------------------
+
     public ClaimResponse fileClaim(ClaimRequest request, String email) {
         // Fetch user
         User user = userRepository.findByEmail(email)
@@ -50,12 +71,11 @@ public class ClaimService {
                 .orElseThrow(() -> new ResourceNotFoundException("Subscription not found"));
 
         // --- LOCKDOWN CHECK ---
-        List<Claim> eventClaims = claimsRepository.findByPolicySubscription_Event_User(user);
-        for (Claim c : eventClaims) {
-            if (c.getPolicySubscription().getEvent().getEventId().equals(subscription.getEvent().getEventId())) {
-                if (c.getStatus() == ClaimStatus.COLLECTED) {
-                    throw new InvalidRequestException("This event is locked. Claim collected.");
-                }
+        List<PolicySubscription> eventSubs = subscriptionRepository.findByEvent_EventId(subscription.getEvent().getEventId());
+        for (PolicySubscription s : eventSubs) {
+            java.util.Optional<Claim> existingClaim = claimsRepository.findByPolicySubscription_SubscriptionId(s.getSubscriptionId());
+            if (existingClaim.isPresent() && existingClaim.get().getStatus() == ClaimStatus.COLLECTED) {
+                throw new InvalidRequestException("This event is locked. Claim collected.");
             }
         }
 
@@ -90,7 +110,30 @@ public class ClaimService {
         // Validate claim amount doesn't exceed policy coverage
         Double coverage = subscription.getPolicy().getMaxCoverageAmount();
         if (request.getClaimAmount() > coverage) {
-            throw new InvalidRequestException("Claim amount cannot exceed the policy coverage amount");
+            throw new InvalidRequestException("Claim amount cannot exceed the policy coverage amount of ₹" + coverage);
+        }
+
+        // --- DATE RESTRICTIONS ---
+        if (request.getIncidentDate() == null) {
+            throw new InvalidRequestException("Incident date is required");
+        }
+
+        java.time.LocalDate incidentDate = request.getIncidentDate();
+        java.time.LocalDateTime filingDateTime = request.getFiledAt() != null ? request.getFiledAt() : LocalDateTime.now();
+        java.time.LocalDate filingDate = filingDateTime.toLocalDate();
+        java.time.LocalDate eventDate = subscription.getEvent().getEventDate();
+
+        // 1. Cannot be after the Filing Date
+        if (incidentDate.isAfter(filingDate)) {
+            throw new InvalidRequestException("Incident date cannot be after the filing date");
+        }
+
+        // 2. Must be within +/- 3 days of the event date
+        java.time.LocalDate minDate = eventDate.minusDays(3);
+        java.time.LocalDate maxDate = eventDate.plusDays(3);
+
+        if (incidentDate.isBefore(minDate) || incidentDate.isAfter(maxDate)) {
+            throw new InvalidRequestException("Incident date must be within 3 days of the event date (" + eventDate + ")");
         }
 
         // Create claim
@@ -98,218 +141,171 @@ public class ClaimService {
         claim.setPolicySubscription(subscription);
         claim.setDescription(request.getDescription());
         claim.setClaimAmount(request.getClaimAmount());
+        claim.setIncidentDate(incidentDate);
+        claim.setEvidenceDocPath(request.getEvidenceDocPath());
         claim.setStatus(ClaimStatus.PENDING);
-        claim.setFiledAt(LocalDateTime.now());
+        
+        // Use the same filing time used for validation
+        claim.setFiledAt(filingDateTime);
 
         Claim savedClaim = claimsRepository.save(claim);
 
         // Notify Admins
         userRepository.findByRoles_RoleName("ADMIN").forEach(admin -> {
             notificationService.createNotification(admin, 
-                "Alert: New claim filed (#" + savedClaim.getClaimId() + ") for event " + subscription.getEvent().getEventName(), 
+                "New Claim Filed: ₹" + claim.getClaimAmount() + " for event " + subscription.getEvent().getEventName(), 
                 "ALERT");
         });
 
-        // Convert to DTO and return
         return convertToClaimResponse(savedClaim);
     }
 
-    public List<Claim> getCustomerClaims(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        return claimsRepository.findByPolicySubscription_Event_User(user);
-    }
-
-    public List<ClaimResponseDTO> getCustomerClaimsDTO(String email) {
+    public List<ClaimResponse> getClaimsForCustomer(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         List<Claim> claims = claimsRepository.findByPolicySubscription_Event_User(user);
-
         return claims.stream()
-                .map(this::convertToDTO)
-                .toList();
+                .map(this::convertToClaimResponse)
+                .collect(Collectors.toList());
     }
 
-    public List<Claim> getAllClaims() {
-        return claimsRepository.findAll();
+    public List<ClaimResponse> getClaimsForOfficer(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        List<Claim> claims = claimsRepository.findByAssignedOfficer(user);
+        return claims.stream()
+                .map(this::convertToClaimResponse)
+                .collect(Collectors.toList());
+    }
+
+    public ClaimResponse approveClaim(Long id, String email, Double amount) {
+        Claim claim = claimsRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Claim not found"));
+
+        User officer = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Officer not found"));
+
+        if (claim.getAssignedOfficer() == null || !claim.getAssignedOfficer().getUserId().equals(officer.getUserId())) {
+            throw new UnauthorizedAccessException("Claim not assigned to you");
+        }
+
+        claim.setStatus(ClaimStatus.APPROVED);
+        
+        // Default to full requested amount if no specific amount provided
+        if (amount == null || amount <= 0) {
+            claim.setApprovedAmount(claim.getClaimAmount());
+        } else {
+            claim.setApprovedAmount(amount);
+        }
+        
+        claim.setResolvedAt(LocalDateTime.now());
+        claim.setResolvedBy(officer);
+        
+        claimsRepository.save(claim);
+
+        // Notify Customer
+        notificationService.createNotification(claim.getPolicySubscription().getEvent().getUser(), 
+            "Your claim for " + claim.getPolicySubscription().getEvent().getEventName() + " has been APPROVED for ₹" + amount, 
+            "SUCCESS");
+
+        return convertToClaimResponse(claim);
+    }
+
+    public ClaimResponse rejectClaim(Long id, String email, String reason) {
+        Claim claim = claimsRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Claim not found"));
+
+        User officer = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Officer not found"));
+
+        if (claim.getAssignedOfficer() == null || !claim.getAssignedOfficer().getUserId().equals(officer.getUserId())) {
+            throw new UnauthorizedAccessException("Claim not assigned to you");
+        }
+
+        claim.setStatus(ClaimStatus.REJECTED);
+        claim.setRejectionReason(reason);
+        claim.setResolvedAt(LocalDateTime.now());
+        claim.setResolvedBy(officer);
+        
+        claimsRepository.save(claim);
+
+        // Notify Customer
+        notificationService.createNotification(claim.getPolicySubscription().getEvent().getUser(), 
+            "Your claim for " + claim.getPolicySubscription().getEvent().getEventName() + " has been REJECTED. Reason: " + reason, 
+            "ALERT");
+
+        return convertToClaimResponse(claim);
+    }
+
+    public ClaimResponse collectClaim(Long id, String email) {
+        Claim claim = claimsRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Claim not found"));
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (!claim.getPolicySubscription().getEvent().getUser().getUserId().equals(user.getUserId())) {
+            throw new UnauthorizedAccessException("Not your claim");
+        }
+
+        if (claim.getStatus() != ClaimStatus.APPROVED) {
+            throw new InvalidRequestException("Claim not approved yet");
+        }
+
+        claim.setStatus(ClaimStatus.COLLECTED);
+        claimsRepository.save(claim);
+
+        return convertToClaimResponse(claim);
+    }
+
+    public List<AdminClaimResponse> getAllClaimsForAdmin() {
+        List<Claim> claims = claimsRepository.findAll();
+
+        return claims.stream()
+                .filter(claim -> claim.getStatus() != ClaimStatus.COLLECTED)
+                .map(this::convertToAdminDTO)
+                .collect(Collectors.toList());
+    }
+
+    private AdminClaimResponse convertToAdminDTO(Claim claim) {
+        AdminClaimResponse dto = new AdminClaimResponse();
+        dto.setClaimId(claim.getClaimId());
+        dto.setEventName(claim.getPolicySubscription().getEvent().getEventName());
+        dto.setCustomerName(claim.getPolicySubscription().getEvent().getUser().getFullName());
+        dto.setClaimAmount(claim.getClaimAmount());
+        dto.setIncidentDate(claim.getIncidentDate());
+        dto.setStatus(claim.getStatus().toString());
+        dto.setFiledAt(claim.getFiledAt());
+        dto.setAssignedOfficerName(claim.getAssignedOfficer() != null ? 
+            claim.getAssignedOfficer().getFullName() : "NOT ASSIGNED");
+        return dto;
     }
 
     public ClaimResponseDTO assignClaimsOfficer(Long id, Long officerId) {
         Claim claim = claimsRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Claim not found"));
 
-        // Finality Check: Cannot re-assign if already assigned
-        if (claim.getAssignedOfficer() != null) {
-            throw new InvalidRequestException("This claim is already assigned to " + claim.getAssignedOfficer().getFullName() + " and cannot be re-assigned.");
-        }
-
         User officer = userRepository.findById(officerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Claims Officer not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Officer not found"));
 
         claim.setAssignedOfficer(officer);
         claimsRepository.save(claim);
 
         // Notify Officer
         notificationService.createNotification(officer, 
-            "Task Assigned: You have been assigned to process claim #" + claim.getClaimId() + " for event " + claim.getPolicySubscription().getEvent().getEventName(), 
+            "New Claim Assigned: Please review the claim for " + claim.getPolicySubscription().getEvent().getEventName(), 
             "ALERT");
 
         return convertToDTO(claim);
-    }
-
-    public ClaimResponseDTO approveClaim(Long id, String email, Double approvedAmount) {
-        // Fetch claim
-        Claim claim = claimsRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Claim not found"));
-
-        // Fetch user
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        // Security Check: Must be assigned
-        if (claim.getAssignedOfficer() == null || 
-            !claim.getAssignedOfficer().getUserId().equals(user.getUserId())) {
-            throw new UnauthorizedAccessException("You cannot approve this claim as it is not assigned to you.");
-        }
-
-        // Update claim
-        claim.setStatus(ClaimStatus.APPROVED);
-        claim.setResolvedAt(LocalDateTime.now());
-        claim.setResolvedBy(user);
-        
-        if (approvedAmount != null) {
-            claim.setApprovedAmount(approvedAmount);
-        } else {
-            claim.setApprovedAmount(claim.getClaimAmount());
-        }
-
-        claimsRepository.save(claim);
-
-        // Notify Customer
-        notificationService.createNotification(claim.getPolicySubscription().getEvent().getUser(), 
-            "Claim Approved: Your claim for " + claim.getPolicySubscription().getEvent().getEventName() + " has been approved for ₹" + claim.getApprovedAmount() + ". You can now collect your payout.", 
-            "SUCCESS");
-
-        return convertToDTO(claim);
-    }
-
-    public ClaimResponseDTO rejectClaim(Long id, String email) {
-        // Fetch claim
-        Claim claim = claimsRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Claim not found"));
-
-        // Fetch user
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        // Security Check: Must be assigned
-        if (claim.getAssignedOfficer() == null || 
-            !claim.getAssignedOfficer().getUserId().equals(user.getUserId())) {
-            throw new UnauthorizedAccessException("You cannot reject this claim as it is not assigned to you.");
-        }
-
-        // Update claim
-        claim.setStatus(ClaimStatus.REJECTED);
-        claim.setResolvedAt(LocalDateTime.now());
-        claim.setResolvedBy(user);
-
-        claimsRepository.save(claim);
-
-        // Notify Customer
-        notificationService.createNotification(claim.getPolicySubscription().getEvent().getUser(), 
-            "Claim Rejected: Your claim for " + claim.getPolicySubscription().getEvent().getEventName() + " was not approved after detailed review.", 
-            "ALERT");
-
-        // Convert to DTO and return
-        return convertToDTO(claim);
-    }
-
-    public ClaimResponse collectClaim(Long claimId, String email) {
-        // Fetch user
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        // Fetch claim
-        Claim claim = claimsRepository.findById(claimId)
-                .orElseThrow(() -> new ResourceNotFoundException("Claim not found"));
-
-        // Validate claim belongs to user
-        if (!claim.getPolicySubscription().getEvent().getUser().getUserId().equals(user.getUserId())) {
-            throw new UnauthorizedAccessException("Unauthorized to collect this claim");
-        }
-
-        // Validate claim is approved
-        if (claim.getStatus() != ClaimStatus.APPROVED) {
-            throw new InvalidRequestException("Only approved claims can be collected");
-        }
-
-        // Update status
-        claim.setStatus(ClaimStatus.COLLECTED);
-        claimsRepository.save(claim);
-
-        // Notify resolved officer
-        if (claim.getResolvedBy() != null) {
-            notificationService.createNotification(claim.getResolvedBy(), 
-                "Payout Collected: Customer has collected ₹" + claim.getApprovedAmount() + " for claim #" + claim.getClaimId(), 
-                "INFO");
-        }
-
-        return convertToClaimResponse(claim);
     }
 
     private ClaimResponseDTO convertToDTO(Claim claim) {
         ClaimResponseDTO dto = new ClaimResponseDTO();
         dto.setClaimId(claim.getClaimId());
-        dto.setSubscriptionId(claim.getPolicySubscription().getSubscriptionId());
-        dto.setClaimAmount(claim.getClaimAmount());
-        dto.setApprovedAmount(claim.getApprovedAmount());
-        dto.setEvidenceDocPath(claim.getEvidenceDocPath());
-        dto.setDescription(claim.getDescription());
         dto.setStatus(claim.getStatus().toString());
-        dto.setResolvedBy(claim.getResolvedBy() != null ? claim.getResolvedBy().getFullName() : null);
-        dto.setAssignedOfficerName(claim.getAssignedOfficer() != null ? claim.getAssignedOfficer().getFullName() : null);
-        dto.setFiledAt(claim.getFiledAt());
-        dto.setResolvedAt(claim.getResolvedAt());
         return dto;
-    }
-
-    public List<ClaimResponse> getCustomerClaimsResponse(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        List<Claim> claims = claimsRepository.findByPolicySubscription_Event_User(user);
-
-        return claims.stream()
-                .map(this::convertToClaimResponse)
-                .collect(Collectors.toList());
-    }
-
-    public List<ClaimResponse> getAssignedClaimsResponse(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        List<Claim> claims = claimsRepository.findByAssignedOfficer(user);
-
-        return claims.stream()
-                .map(this::convertToClaimResponse)
-                .collect(Collectors.toList());
-    }
-
-    public List<ClaimResponse> getAllClaimsResponse() {
-        List<Claim> claims = claimsRepository.findAll();
-
-        return claims.stream()
-                .map(this::convertToClaimResponse)
-                .collect(Collectors.toList());
-    }
-
-    public ClaimResponse getClaimByIdDTO(Long id) {
-        Claim claim = claimsRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Claim not found"));
-
-        return convertToClaimResponse(claim);
     }
 
     private ClaimResponse convertToClaimResponse(Claim claim) {
@@ -319,28 +315,27 @@ public class ClaimService {
         dto.setClaimId(claim.getClaimId());
         dto.setSubscriptionId(claim.getPolicySubscription().getSubscriptionId());
         dto.setClaimAmount(claim.getClaimAmount());
+        dto.setIncidentDate(claim.getIncidentDate());
         dto.setApprovedAmount(claim.getApprovedAmount());
         dto.setEvidenceDocPath(claim.getEvidenceDocPath());
         dto.setDescription(claim.getDescription());
         dto.setStatus(claim.getStatus().toString());
+        dto.setRejectionReason(claim.getRejectionReason());
         dto.setFiledAt(claim.getFiledAt());
-        dto.setAssignedOfficerName(claim.getAssignedOfficer() != null ? claim.getAssignedOfficer().getFullName() : null);
+        dto.setAssignedOfficerName(claim.getAssignedOfficer() != null ? claim.getAssignedOfficer().getFullName() : "NOT ASSIGNED");
 
         // Customer info
-        dto.setCustomerName(
-            claim.getPolicySubscription().getEvent().getUser().getFullName()
-        );
-        dto.setCustomerPhone(
-            claim.getPolicySubscription().getEvent().getUser().getPhone()
-        );
+        dto.setCustomerName(claim.getPolicySubscription().getEvent().getUser().getFullName());
+        dto.setCustomerPhone(claim.getPolicySubscription().getEvent().getUser().getPhone());
 
         // Event info
-        dto.setEventName(claim.getPolicySubscription().getEvent().getEventName());
-        dto.setEventType(claim.getPolicySubscription().getEvent().getEventType());
-        dto.setEventDate(claim.getPolicySubscription().getEvent().getEventDate());
-        dto.setLocation(claim.getPolicySubscription().getEvent().getLocation());
-        dto.setNumberOfAttendees(claim.getPolicySubscription().getEvent().getNumberOfAttendees());
-        dto.setBudget(claim.getPolicySubscription().getEvent().getBudget());
+        Event event = claim.getPolicySubscription().getEvent();
+        dto.setEventName(event.getEventName());
+        dto.setEventType(event.getEventType());
+        dto.setEventDate(event.getEventDate());
+        dto.setLocation(event.getLocation());
+        dto.setNumberOfAttendees(event.getNumberOfAttendees());
+        dto.setBudget(event.getBudget());
 
         // Policy info
         dto.setPolicyName(claim.getPolicySubscription().getPolicy().getPolicyName());
@@ -368,27 +363,5 @@ public class ClaimService {
         if (risk >= 10) return "HIGH";
         if (risk >= 5) return "MEDIUM";
         return "LOW";
-    }
-
-    // Admin method to get all claims
-    public List<AdminClaimResponse> getAllClaimsForAdmin() {
-        List<Claim> claims = claimsRepository.findAll();
-
-        return claims.stream()
-                .map(this::convertToAdminDTO)
-                .collect(Collectors.toList());
-    }
-
-    private AdminClaimResponse convertToAdminDTO(Claim claim) {
-        AdminClaimResponse dto = new AdminClaimResponse();
-        dto.setClaimId(claim.getClaimId());
-        dto.setEventName(claim.getPolicySubscription().getEvent().getEventName());
-        dto.setCustomerName(claim.getPolicySubscription().getEvent().getUser().getFullName());
-        dto.setClaimAmount(claim.getClaimAmount());
-        dto.setStatus(claim.getStatus().toString());
-        dto.setFiledAt(claim.getFiledAt());
-        dto.setAssignedOfficerName(claim.getAssignedOfficer() != null ? 
-            claim.getAssignedOfficer().getFullName() : "NOT ASSIGNED");
-        return dto;
     }
 }

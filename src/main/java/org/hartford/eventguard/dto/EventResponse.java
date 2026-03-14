@@ -20,8 +20,17 @@ public class EventResponse {
     private Boolean isPremiumPaid;
     private Boolean hasClaim;
     private String claimStatus;
+    private Boolean isLocked;
 
     public EventResponse() {
+    }
+
+    public Boolean getIsLocked() {
+        return isLocked;
+    }
+
+    public void setIsLocked(Boolean isLocked) {
+        this.isLocked = isLocked;
     }
 
     public String getStatus() {

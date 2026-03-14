@@ -26,7 +26,7 @@ public interface PolicySubscriptionRepository extends JpaRepository<PolicySubscr
 
     List<PolicySubscription> findByEvent_EventId(Long eventId);
 
-    @org.springframework.data.jpa.repository.Query("SELECT SUM(ps.premiumAmount) FROM PolicySubscription ps WHERE ps.status = 'PAID'")
+    @org.springframework.data.jpa.repository.Query("SELECT COALESCE(SUM(ps.premiumAmount), 0.0) FROM PolicySubscription ps WHERE ps.status = org.hartford.eventguard.entity.SubscriptionStatus.PAID")
     Double sumPaidPremiums();
 
     // Fetch subscription with all related entities

@@ -1,5 +1,6 @@
 package org.hartford.eventguard.dto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class AdminClaimResponse {
@@ -8,6 +9,7 @@ public class AdminClaimResponse {
     private String eventName;
     private String customerName;
     private Double claimAmount;
+    private LocalDate incidentDate;
     private String status;
     private LocalDateTime filedAt;
     private String assignedOfficerName;
@@ -53,6 +55,14 @@ public class AdminClaimResponse {
 
     public void setClaimAmount(Double claimAmount) {
         this.claimAmount = claimAmount;
+    }
+
+    public LocalDate getIncidentDate() {
+        return incidentDate;
+    }
+
+    public void setIncidentDate(LocalDate incidentDate) {
+        this.incidentDate = incidentDate;
     }
 
     public String getStatus() {

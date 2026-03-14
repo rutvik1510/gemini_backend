@@ -20,10 +20,20 @@ public class CustomerSubscriptionResponse {
     private Double premiumAmount;
     private Boolean isPaid;
     private Boolean hasClaim;
+    private Boolean isLocked;
     private String status;
+    private String rejectionReason;
     private LocalDateTime requestedAt;
 
     public CustomerSubscriptionResponse() {
+    }
+
+    public Boolean getIsLocked() {
+        return isLocked != null && isLocked;
+    }
+
+    public void setIsLocked(Boolean locked) {
+        isLocked = locked;
     }
 
     public Long getSubscriptionId() {
@@ -112,6 +122,14 @@ public class CustomerSubscriptionResponse {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
 
     public Double getRiskPercentage() {

@@ -13,7 +13,6 @@ import org.hartford.eventguard.repo.ClaimsRepository;
 import org.hartford.eventguard.repo.EventRepository;
 import org.hartford.eventguard.repo.PolicySubscriptionRepository;
 import org.hartford.eventguard.repo.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,171 +26,88 @@ public class EventService {
     private final UserRepository userRepository;
     private final PolicySubscriptionRepository subscriptionRepository;
     private final ClaimsRepository claimsRepository;
-    private final NotificationService notificationService;
 
-    public EventService(EventRepository eventRepository, 
-                        UserRepository userRepository, 
-                        PolicySubscriptionRepository subscriptionRepository, 
-                        ClaimsRepository claimsRepository,
-                        NotificationService notificationService) {
+    public EventService(EventRepository eventRepository,
+                        UserRepository userRepository,
+                        PolicySubscriptionRepository subscriptionRepository,
+                        ClaimsRepository claimsRepository) {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.subscriptionRepository = subscriptionRepository;
         this.claimsRepository = claimsRepository;
-        this.notificationService = notificationService;
-    }
-
-    public EventResponse createCorporateEvent(CorporateEventRequest request, String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        // Validate event date is not in the past
-        if (request.getEventDate().isBefore(java.time.LocalDate.now())) {
-            throw new InvalidRequestException("Event date cannot be in the past");
-        }
-
-        // Validate corporate-specific required fields
-        validateCorporateEventRequest(request);
-
-        Event event = new Event();
-
-        // Common fields
-        event.setEventName(request.getEventName());
-        event.setEventType(EventDomain.CORPORATE_TECH_CONFERENCE);
-        event.setEventDate(request.getEventDate());
-        event.setLocation(request.getLocation());
-        event.setBudget(request.getBudget());
-        event.setNumberOfAttendees(request.getNumberOfAttendees());
-        event.setDurationInDays(request.getDurationInDays());
-
-        // Objective fields
-        event.setHasProfessionalSecurity(request.getHasProfessionalSecurity());
-        event.setHasCCTV(request.getHasCCTV());
-        event.setHasMetalDetectors(request.getHasMetalDetectors());
-        event.setHasFireNOC(request.getHasFireNOC());
-        event.setHasOnSiteFireSafety(request.getHasOnSiteFireSafety());
-        event.setSafetyComplianceDocPath(request.getSafetyComplianceDocPath());
-
-        // Calculate Risk Levels
-        event.setSecurityLevel(calculateSecurityLevel(request));
-        event.setLocationRiskLevel(calculateLocationRiskLevel(request));
-
-        // Corporate-specific fields
-        event.setVenueType(request.getVenueType());
-        event.setTemporaryBooths(request.getTemporaryBooths());
-        event.setHighValueEquipment(request.getHighValueEquipment());
-        event.setEmergencyPreparednessLevel(request.getEmergencyPreparednessLevel());
-
-        // Set music-specific fields to null (not applicable for corporate)
-        event.setIsOutdoor(null);
-        event.setAlcoholAllowed(null);
-        event.setTemporaryStructure(null);
-        event.setTemporaryStage(null);
-        event.setFireworksUsed(null);
-        event.setCelebrityInvolved(null);
-
-        event.setUser(user);
-
-        Event savedEvent = eventRepository.save(event);
-
-        // Notify Admins
-        userRepository.findByRoles_RoleName("ADMIN").forEach(admin -> {
-            notificationService.createNotification(admin, 
-                "New Corporate Event created: " + savedEvent.getEventName() + " by " + user.getFullName(), 
-                "INFO");
-        });
-
-        return convertToDTO(savedEvent);
     }
 
     public EventResponse createMusicEvent(MusicEventRequest request, String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        // Validate event date is not in the past
-        if (request.getEventDate().isBefore(java.time.LocalDate.now())) {
-            throw new InvalidRequestException("Event date cannot be in the past");
-        }
-
-        // Validate music-specific required fields
-        validateMusicEventRequest(request);
-
         Event event = new Event();
-
-        // Common fields
         event.setEventName(request.getEventName());
-        event.setEventType(EventDomain.OUTDOOR_MUSIC_CONCERT);
         event.setEventDate(request.getEventDate());
         event.setLocation(request.getLocation());
         event.setBudget(request.getBudget());
         event.setNumberOfAttendees(request.getNumberOfAttendees());
         event.setDurationInDays(request.getDurationInDays());
+        event.setEventType(EventDomain.OUTDOOR_MUSIC_CONCERT);
+        event.setUser(user);
 
-        // Objective fields
+        // Security
         event.setHasProfessionalSecurity(request.getHasProfessionalSecurity());
         event.setHasCCTV(request.getHasCCTV());
         event.setHasMetalDetectors(request.getHasMetalDetectors());
+        event.setSecurityLevel(calculateSecurityLevel(request));
+
+        // Safety
         event.setHasFireNOC(request.getHasFireNOC());
         event.setHasOnSiteFireSafety(request.getHasOnSiteFireSafety());
+        event.setLocationRiskLevel(calculateLocationRiskLevel(request));
         event.setSafetyComplianceDocPath(request.getSafetyComplianceDocPath());
 
-        // Calculate Risk Levels
-        event.setSecurityLevel(calculateSecurityLevel(request));
-        event.setLocationRiskLevel(calculateLocationRiskLevel(request));
-
-        // Music-specific fields
+        // Music Specific
         event.setIsOutdoor(request.getIsOutdoor());
         event.setAlcoholAllowed(request.getAlcoholAllowed());
-        event.setTemporaryStructure(request.getTemporaryStructure());
         event.setTemporaryStage(request.getTemporaryStage());
         event.setFireworksUsed(request.getFireworksUsed());
         event.setCelebrityInvolved(request.getCelebrityInvolved());
 
-        // Set corporate-specific fields to null (not applicable for music)
-        event.setTemporaryBooths(null);
-        event.setHighValueEquipment(null);
-        event.setEmergencyPreparednessLevel(null);
-        event.setVenueType(null);
+        Event saved = eventRepository.save(event);
+        return convertToDTO(saved);
+    }
 
+    public EventResponse createCorporateEvent(CorporateEventRequest request, String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Event event = new Event();
+        event.setEventName(request.getEventName());
+        event.setEventDate(request.getEventDate());
+        event.setLocation(request.getLocation());
+        event.setBudget(request.getBudget());
+        event.setNumberOfAttendees(request.getNumberOfAttendees());
+        event.setDurationInDays(request.getDurationInDays());
+        event.setEventType(EventDomain.CORPORATE_TECH_CONFERENCE);
         event.setUser(user);
 
-        Event savedEvent = eventRepository.save(event);
+        // Security
+        event.setHasProfessionalSecurity(request.getHasProfessionalSecurity());
+        event.setHasCCTV(request.getHasCCTV());
+        event.setHasMetalDetectors(request.getHasMetalDetectors());
+        event.setSecurityLevel(calculateSecurityLevel(request));
 
-        // Notify Admins
-        userRepository.findByRoles_RoleName("ADMIN").forEach(admin -> {
-            notificationService.createNotification(admin, 
-                "New Music Event created: " + savedEvent.getEventName() + " by " + user.getFullName(), 
-                "INFO");
-        });
+        // Safety
+        event.setHasFireNOC(request.getHasFireNOC());
+        event.setHasOnSiteFireSafety(request.getHasOnSiteFireSafety());
+        event.setLocationRiskLevel(calculateLocationRiskLevel(request));
+        event.setSafetyComplianceDocPath(request.getSafetyComplianceDocPath());
 
-        return convertToDTO(savedEvent);
-    }
+        // Corporate Specific
+        event.setVenueType(request.getVenueType());
+        event.setHighValueEquipment(request.getHighValueEquipment());
+        event.setTemporaryBooths(request.getTemporaryBooths());
+        event.setEmergencyPreparednessLevel(request.getEmergencyPreparednessLevel());
 
-    private void validateCorporateEventRequest(CorporateEventRequest request) {
-        if (request.getVenueType() == null) {
-            throw new IllegalArgumentException("venueType is required for Corporate Conference events");
-        }
-        if (request.getHighValueEquipment() == null) {
-            throw new IllegalArgumentException("highValueEquipment is required for Corporate Conference events");
-        }
-        if (request.getEmergencyPreparednessLevel() == null || request.getEmergencyPreparednessLevel().isEmpty()) {
-            throw new IllegalArgumentException("emergencyPreparednessLevel is required for Corporate Conference events");
-        }
-    }
-
-    private void validateMusicEventRequest(MusicEventRequest request) {
-        if (request.getIsOutdoor() == null) {
-            throw new IllegalArgumentException("isOutdoor is required for Music Concert events");
-        }
-        if (request.getTemporaryStage() == null) {
-            throw new IllegalArgumentException("temporaryStage is required for Music Concert events");
-        }
-        if (request.getFireworksUsed() == null) {
-            throw new IllegalArgumentException("fireworksUsed is required for Music Concert events");
-        }
-        if (request.getCelebrityInvolved() == null) {
-            throw new IllegalArgumentException("celebrityInvolved is required for Music Concert events");
-        }
+        Event saved = eventRepository.save(event);
+        return convertToDTO(saved);
     }
 
     public List<EventResponse> getMyEventsDTO(String email) {
@@ -199,7 +115,6 @@ public class EventService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         List<Event> events = eventRepository.findByUser(user);
-
         return events.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -208,13 +123,18 @@ public class EventService {
     public EventResponse getEventByIdDTO(Long id) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
-
         return convertToDTO(event);
     }
 
     public String deleteEvent(Long id) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+        
+        // Check if there are active subscriptions
+        List<PolicySubscription> subs = subscriptionRepository.findByEvent_EventId(id);
+        if (!subs.isEmpty()) {
+            throw new InvalidRequestException("Cannot delete event with active subscriptions");
+        }
 
         eventRepository.delete(event);
         return "Event deleted successfully";
@@ -234,24 +154,44 @@ public class EventService {
         // Add insurance status info
         List<PolicySubscription> subscriptions = subscriptionRepository.findByEvent_EventId(event.getEventId());
         if (!subscriptions.isEmpty()) {
-            PolicySubscription sub = subscriptions.get(0);
+            // Find the active subscription (Paid, Approved, or the first one)
+            PolicySubscription sub = subscriptions.stream()
+                .filter(s -> s.getStatus() == SubscriptionStatus.PAID)
+                .findFirst()
+                .or(() -> subscriptions.stream()
+                        .filter(s -> s.getStatus() == SubscriptionStatus.APPROVED)
+                        .findFirst())
+                .orElse(subscriptions.get(0));
+
             dto.setSubscriptionId(sub.getSubscriptionId());
             dto.setStatus(sub.getStatus().toString());
             dto.setIsPremiumPaid(sub.getStatus() == SubscriptionStatus.PAID);
             dto.setPremiumAmount(sub.getPremiumAmount());
 
-            // Check for claims
-            Optional<Claim> claim = claimsRepository.findByPolicySubscription_SubscriptionId(sub.getSubscriptionId());
-            if (claim.isPresent()) {
-                dto.setHasClaim(true);
-                dto.setClaimStatus(claim.get().getStatus().toString());
-            } else {
-                dto.setHasClaim(false);
+            // Check for claims across ALL subscriptions for this event
+            boolean anyClaim = false;
+            boolean eventLocked = false;
+            String topClaimStatus = "NONE";
+
+            for (PolicySubscription s : subscriptions) {
+                Optional<Claim> c = claimsRepository.findByPolicySubscription_SubscriptionId(s.getSubscriptionId());
+                if (c.isPresent()) {
+                    anyClaim = true;
+                    topClaimStatus = c.get().getStatus().toString();
+                    if (c.get().getStatus() == ClaimStatus.COLLECTED) {
+                        eventLocked = true;
+                        break;
+                    }
+                }
             }
+
+            dto.setHasClaim(anyClaim);
+            dto.setClaimStatus(topClaimStatus);
+            dto.setIsLocked(eventLocked);
         } else {
-            dto.setStatus("NO_SUBSCRIPTION");
-            dto.setIsPremiumPaid(false);
             dto.setHasClaim(false);
+            dto.setIsLocked(false);
+            dto.setClaimStatus("NONE");
         }
 
         return dto;
@@ -314,4 +254,3 @@ public class EventService {
         return "HIGH";
     }
 }
-

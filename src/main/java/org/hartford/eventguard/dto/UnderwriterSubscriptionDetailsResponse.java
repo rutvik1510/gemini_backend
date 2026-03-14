@@ -19,6 +19,7 @@ public class UnderwriterSubscriptionDetailsResponse {
     private String riskLevel;
     private String riskFactors;
     private String status;
+    private String rejectionReason;
     private String assignedUnderwriterName;
 
     // Event details
@@ -173,6 +174,14 @@ public class UnderwriterSubscriptionDetailsResponse {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
 
     public String getAssignedUnderwriterName() {

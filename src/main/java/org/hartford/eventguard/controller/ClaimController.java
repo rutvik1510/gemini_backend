@@ -23,7 +23,7 @@ public class ClaimController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<ClaimResponse>> fileClaim(
-            @RequestBody ClaimRequest request,
+            @jakarta.validation.Valid @RequestBody ClaimRequest request,
             Authentication authentication) {
 
         String email = authentication.getName();

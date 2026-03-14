@@ -23,35 +23,30 @@ public class EventController {
         this.eventService = eventService;
     }
 
-
-    /**
-     * POST /events/corporate - Create a corporate event
-
-     */
-    @PostMapping("/corporate")
-    public ResponseEntity<ApiResponse<EventResponse>> createCorporateEvent(
-            @RequestBody CorporateEventRequest request,
-            Authentication authentication) {
-
-        String email = authentication.getName();
-        EventResponse eventResponse = eventService.createCorporateEvent(request, email);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Corporate event created successfully", eventResponse));
-    }
-
     /**
 
      * @return Success message with EventResponse data
      */
     @PostMapping("/music")
     public ResponseEntity<ApiResponse<EventResponse>> createMusicEvent(
-            @RequestBody MusicEventRequest request,
+            @jakarta.validation.Valid @RequestBody MusicEventRequest request,
             Authentication authentication) {
 
         String email = authentication.getName();
         EventResponse eventResponse = eventService.createMusicEvent(request, email);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Music event created successfully", eventResponse));
+    }
+
+    @PostMapping("/corporate")
+    public ResponseEntity<ApiResponse<EventResponse>> createCorporateEvent(
+            @jakarta.validation.Valid @RequestBody CorporateEventRequest request,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+        EventResponse eventResponse = eventService.createCorporateEvent(request, email);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Corporate event created successfully", eventResponse));
     }
 
     /**

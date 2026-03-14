@@ -88,6 +88,18 @@ public class PolicySubscriptionService {
         dto.setRiskPercentage(totalRisk);
         dto.setEventRisk(riskBreakdown.getEventRisk());
         dto.setWeatherRisk(riskBreakdown.getWeatherRisk());
+
+        // Check if locked
+        boolean isLocked = false;
+        List<PolicySubscription> eventSubs = subscriptionRepository.findByEvent_EventId(eventId);
+        for (PolicySubscription s : eventSubs) {
+            java.util.Optional<Claim> existingClaim = claimsRepository.findByPolicySubscription_SubscriptionId(s.getSubscriptionId());
+            if (existingClaim.isPresent() && existingClaim.get().getStatus() == ClaimStatus.COLLECTED) {
+                isLocked = true;
+                break;
+            }
+        }
+        dto.setIsLocked(isLocked);
         
         String riskLevel = "LOW";
         if (totalRisk > 10) riskLevel = "HIGH";
@@ -401,6 +413,7 @@ public class PolicySubscriptionService {
         dto.setPremiumAmount(subscription.getPremiumAmount());
         dto.setRiskPercentage(subscription.getRiskPercentage());
         dto.setStatus(subscription.getStatus().toString());
+        dto.setRejectionReason(subscription.getRejectionReason());
         dto.setAssignedUnderwriterName(subscription.getAssignedUnderwriter() != null ? 
             subscription.getAssignedUnderwriter().getFullName() : null);
         
@@ -432,7 +445,24 @@ public class PolicySubscriptionService {
         dto.setRiskPercentage(subscription.getRiskPercentage());
         dto.setEventRisk(subscription.getEventRisk());
         dto.setWeatherRisk(subscription.getWeatherRisk());
+        dto.setRejectionReason(subscription.getRejectionReason());
         
+        // Check if claim exists
+        boolean hasClaim = claimsRepository.existsByPolicySubscription_SubscriptionId(subscription.getSubscriptionId());
+        dto.setHasClaim(hasClaim);
+
+        // Check if locked
+        boolean isLocked = false;
+        List<PolicySubscription> eventSubs = subscriptionRepository.findByEvent_EventId(subscription.getEvent().getEventId());
+        for (PolicySubscription s : eventSubs) {
+            java.util.Optional<Claim> existingClaim = claimsRepository.findByPolicySubscription_SubscriptionId(s.getSubscriptionId());
+            if (existingClaim.isPresent() && existingClaim.get().getStatus() == ClaimStatus.COLLECTED) {
+                isLocked = true;
+                break;
+            }
+        }
+        dto.setIsLocked(isLocked);
+
         String riskLevel = "LOW";
         if (subscription.getTotalRisk() != null) {
             if (subscription.getTotalRisk() > 10) riskLevel = "HIGH";
@@ -476,6 +506,7 @@ public class PolicySubscriptionService {
         dto.setMaxCoverageAmount(policy.getMaxCoverageAmount());
         dto.setRiskPercentage(subscription.getRiskPercentage());
         dto.setStatus(subscription.getStatus().toString());
+        dto.setRejectionReason(subscription.getRejectionReason());
         dto.setPremiumAmount(subscription.getPremiumAmount());
         
         // Populate from RiskDetails entity if available

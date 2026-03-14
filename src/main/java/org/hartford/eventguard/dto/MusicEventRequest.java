@@ -1,15 +1,32 @@
 package org.hartford.eventguard.dto;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 public class MusicEventRequest {
 
     // Common fields
+    @NotBlank(message = "Event name is required")
     private String eventName;
+
+    @NotNull(message = "Event date is required")
     private LocalDate eventDate;
+
+    @NotBlank(message = "Location is required")
     private String location;
+
+    @NotNull(message = "Budget is required")
+    @Min(value = 1000, message = "Budget must be at least 1000")
     private Double budget;
+
+    @NotNull(message = "Number of attendees is required")
+    @Min(value = 1, message = "Number of attendees must be at least 1")
     private Integer numberOfAttendees;
+
+    @NotNull(message = "Duration is required")
+    @Min(value = 1, message = "Duration must be at least 1 day")
     private Integer durationInDays;
 
     // Music-specific risk fields

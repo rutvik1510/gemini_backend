@@ -67,7 +67,7 @@ public class AuthController {
 
     //  REGISTER CUSTOMER
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<String>> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<ApiResponse<String>> register(@jakarta.validation.Valid @RequestBody RegisterRequest request) {
         String message = authService.registerCustomer(request);
         return ResponseEntity.ok(ApiResponse.success(message));
     }

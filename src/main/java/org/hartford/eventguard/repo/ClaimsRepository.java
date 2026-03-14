@@ -4,8 +4,10 @@ import org.hartford.eventguard.entity.Claim;
 import org.hartford.eventguard.entity.ClaimStatus;
 import org.hartford.eventguard.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ClaimsRepository extends JpaRepository<Claim, Long> {
 
@@ -13,14 +15,12 @@ public interface ClaimsRepository extends JpaRepository<Claim, Long> {
 
     List<Claim> findByAssignedOfficer(User user);
 
-    // Count claims by status for dashboard stats
     long countByStatus(ClaimStatus status);
 
-    // Check if claim already exists for subscription
     boolean existsByPolicySubscription_SubscriptionId(Long subscriptionId);
 
-    @org.springframework.data.jpa.repository.Query("SELECT SUM(c.approvedAmount) FROM Claim c WHERE c.status IN ('APPROVED', 'COLLECTED')")
+    @Query("SELECT COALESCE(SUM(c.approvedAmount), 0.0) FROM Claim c WHERE c.status IN (org.hartford.eventguard.entity.ClaimStatus.APPROVED, org.hartford.eventguard.entity.ClaimStatus.COLLECTED)")
     Double sumApprovedPayouts();
 
-    java.util.Optional<Claim> findByPolicySubscription_SubscriptionId(Long subscriptionId);
+    Optional<Claim> findByPolicySubscription_SubscriptionId(Long subscriptionId);
 }

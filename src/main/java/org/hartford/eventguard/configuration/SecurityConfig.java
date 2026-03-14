@@ -62,7 +62,8 @@ public class SecurityConfig {
                                 "/**.html",
                                 "/**.css",
                                 "/**.js",
-                                "/uploads/**"
+                                "/uploads/**",
+                                "/api/files/**"
                         ).permitAll()
 
                         // Admin endpoints

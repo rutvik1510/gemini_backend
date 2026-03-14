@@ -62,10 +62,11 @@ public class UnderwriterSubscriptionController {
     @PutMapping("/{id}/reject")
     public ResponseEntity<ApiResponse<String>> rejectSubscription(
             @PathVariable Long id,
-            @RequestParam(required = false) String reason,
+            @RequestBody(required = false) org.hartford.eventguard.dto.RejectRequest request,
             Authentication authentication) {
 
         String email = authentication.getName();
+        String reason = (request != null && request.getReason() != null) ? request.getReason() : "Risk threshold exceeded";
         subscriptionService.rejectSubscription(id, email, reason);
         return ResponseEntity.ok(ApiResponse.success("Subscription rejected"));
     }
