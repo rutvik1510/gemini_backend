@@ -264,7 +264,6 @@ public class ClaimService {
         List<Claim> claims = claimsRepository.findAll();
 
         return claims.stream()
-                .filter(claim -> claim.getStatus() != ClaimStatus.COLLECTED)
                 .map(this::convertToAdminDTO)
                 .collect(Collectors.toList());
     }
